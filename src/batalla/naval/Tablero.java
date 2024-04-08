@@ -6,8 +6,12 @@ package batalla.naval;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.util.List;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.ImageIcon;
@@ -43,7 +47,7 @@ public class Tablero extends javax.swing.JPanel {
         this.isPlayer = true;
         this.inBuild = true;
         this.player = new Player();
-        this.actualBoat = new Boat(2, true);
+        this.actualBoat = new Boat(3);
         //Inicar componentes
         initComponents();
         //Almacenar botones en lista
@@ -1997,8 +2001,8 @@ public class Tablero extends javax.swing.JPanel {
     private void PositionClick(java.awt.event.MouseEvent button) {
         JButton Cell = (JButton) button.getComponent();
         String codeCoords = Cell.getName();
-        if (!player.getCells().contains(codeCoords) && validateCellPosition(codeCoords)) {
-            List<String> coords = actualBoat.getSize() > 1 ? boatToCells(codeCoords) : Arrays.asList(codeCoords);
+        List<String> coords = actualBoat.getSize() > 1 ? boatToCells(codeCoords) : Arrays.asList(codeCoords);
+        if (validateCells(coords) && validateCellPosition(codeCoords)) {
             player.addCell(coords);
             actualBoat.setCoords(coords);
             player.addBoat(actualBoat);
@@ -2044,17 +2048,6 @@ public class Tablero extends javax.swing.JPanel {
             //vert
             int num = Integer.parseInt(coord.substring(1));
             if (orientation) {
-                String coordLeft = ((char) (((int) coord.charAt(0)) - 1)) + "" + num;
-                String coordRight = ((char) (((int) coord.charAt(0)) + 1)) + "" + num;
-                if (size == 3) {
-                    coords.add(coordLeft);
-                    coords.add(coord);
-                    coords.add(coordRight);
-                } else {
-                    coords.add(coord);
-                    coords.add(coordRight);
-                }
-            } else {
                 //horizo
                 String coordTop = coord.charAt(0) + "" + (num - 1);
                 String coordButton = coord.charAt(0) + "" + (num + 1);
@@ -2065,6 +2058,18 @@ public class Tablero extends javax.swing.JPanel {
                 } else {
                     coords.add(coord);
                     coords.add(coordButton);
+                }
+
+            } else {
+                String coordLeft = ((char) (((int) coord.charAt(0)) - 1)) + "" + num;
+                String coordRight = ((char) (((int) coord.charAt(0)) + 1)) + "" + num;
+                if (size == 3) {
+                    coords.add(coordLeft);
+                    coords.add(coord);
+                    coords.add(coordRight);
+                } else {
+                    coords.add(coord);
+                    coords.add(coordRight);
                 }
             }
         } else {
@@ -2081,32 +2086,80 @@ public class Tablero extends javax.swing.JPanel {
         ghostCells = new ArrayList<>();
     }
 
+    public ImageIcon rotateImage(ImageIcon icon, double angle) {
+        Image image = icon.getImage();
+        int w = image.getWidth(null);
+        int h = image.getHeight(null);
+
+        BufferedImage rotatedImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = rotatedImage.createGraphics();
+
+        // Rotar la imagen 
+        AffineTransform transform = new AffineTransform();
+        transform.rotate(angle, w / 2, h / 2);
+        g2d.setTransform(transform);
+        g2d.drawImage(image, 0, 0, null);
+
+        g2d.dispose();
+
+        return new ImageIcon(rotatedImage);
+    }
+
     private ImageIcon getIcon(boolean type, int index) {
+        ImageIcon icon = new ImageIcon();
         StringBuilder typeOfImage = new StringBuilder();
         typeOfImage.append(type ? "" : "P");
-        typeOfImage.append(actualBoat.getSize() == 1 ? "B" : actualBoat.getOrientation() ? 'H' : 'V');
+        typeOfImage.append(actualBoat.getSize() == 1 ? "B" : "H");
         String url = System.getProperty("user.dir") + "\\src\\img\\" + typeOfImage.toString();
-        if (actualBoat.getSize() == 3) {
-            switch (index) {
-                case 0:
-                    url += "A";
-                    break;
-                case 1:
-                    url += "B";
-                    break;
-                default:
-                    url += "C";
-                    break;
+        int rotation = actualBoat.getRotation();
+        switch (actualBoat.getSize()) {
+            case 3 -> {
+                if (rotation >= 2) {
+                    switch (index) {
+                        case 0:
+                            url += "C";
+                            break;
+                        case 1:
+                            url += "B";
+                            break;
+                        default:
+                            url += "A";
+                            break;
+                    }
+                } else {
+                    switch (index) {
+                        case 0:
+                            url += "A";
+                            break;
+                        case 1:
+                            url += "B";
+                            break;
+                        default:
+                            url += "C";
+                            break;
+                    }
+                }
             }
-        } else if (actualBoat.getSize() == 2) {
-            if (index == 0) {
-                url += "A";
-            } else {
-                url += "C";
+            case 2 -> {
+
+                if (rotation >= 2) {
+                    if (index == 0) {
+                        url += "C";
+                    } else {
+                        url += "A";
+                    }
+                } else {
+                    if (index == 0) {
+                        url += "A";
+                    } else {
+                        url += "C";
+                    }
+                }
             }
+
         }
 
-        return new ImageIcon(url + ".png");
+        return rotateImage(new ImageIcon(url + ".png"), actualBoat.getRotationDegrees());
     }
 
     private void paintCells(boolean type, List<String> cells) {
@@ -2143,29 +2196,37 @@ public class Tablero extends javax.swing.JPanel {
         paintCells(false, Arrays.asList(cell));
     }
 
+    private boolean validateCells(List<String> cells) {
+        for (String cell : cells) {
+            if (player.getCells().contains(cell)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private boolean validateCellPosition(String cellName) {
         boolean temp = false;
         int longBoat = actualBoat.getSize();
         //false = horizontal, true = vertical
         boolean orientation = actualBoat.getOrientation();
         if (longBoat > 1) {
-            //Barcos verticales
             if (orientation) {
-
-                if (!borderRight.contains(cellName)) {
+                //Botes horizontales
+                if (!borderButton.contains(cellName)) {
                     //Barcos de 3
-                    if (longBoat == 3 && !borderLeft.contains(cellName)) {
+                    if (longBoat == 3 && !borderTop.contains(cellName)) {
                         temp = true;
                     } else if (longBoat == 2) {
                         //Barcos de 2
                         temp = true;
                     }
                 }
+
             } else {
-                //Botes horizontales
-                if (!borderButton.contains(cellName)) {
+                if (!borderRight.contains(cellName)) {
                     //Barcos de 3
-                    if (longBoat == 3 && !borderTop.contains(cellName)) {
+                    if (longBoat == 3 && !borderLeft.contains(cellName)) {
                         temp = true;
                     } else if (longBoat == 2) {
                         //Barcos de 2
@@ -2179,11 +2240,22 @@ public class Tablero extends javax.swing.JPanel {
         return temp;
     }
 
+    private void changeRotation() {
+        actualBoat.setOrientation(!actualBoat.getOrientation());
+        int rotation = actualBoat.getRotation();
+        if ((rotation + 1) > 3) {
+            actualBoat.setRotation(0);
+        } else {
+            actualBoat.setRotation(rotation + 1);
+        }
+    }
+
     private void mouseHover(java.awt.event.MouseEvent mouse) {
         if (inBuild) {
             String cellName = mouse.getComponent().getName();
             //Verificar que no este usada
-            if (!player.getCells().contains(cellName)) {
+            List<String> coords = actualBoat.getSize() > 1 ? boatToCells(cellName) : Arrays.asList(cellName);
+            if (validateCells(coords)) {
                 //Para barcos de 2 y 3 celdas
                 if (validateCellPosition(cellName)) {
                     paintCells(boatToCells(cellName));
@@ -2951,7 +3023,8 @@ public class Tablero extends javax.swing.JPanel {
 
     private void rotateButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rotateButtonMouseClicked
         // TODO add your handling code here:
-        actualBoat.setOrientation(!actualBoat.getOrientation());
+        changeRotation();
+
     }//GEN-LAST:event_rotateButtonMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

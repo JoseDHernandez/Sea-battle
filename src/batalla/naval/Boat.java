@@ -17,20 +17,50 @@ public class Boat {
     private int life; // Vida restante del barco
     private int size; // Longitud del barco
     private List<String> coords; // Coordenadas ocupadas por el barco
-    private boolean orientation;
+    private boolean orientation;//true = horizontal , false = vertical
+    private int rotation;
 
     public Boat() {
         life = 1;
         size = 1;
         coords = new ArrayList<>();
         orientation = true;
+        rotation = 1;
     }
 
-    public Boat(int size, boolean orientation) {
+    public Boat(int size) {
         this.life = size;
         this.size = size;
         coords = new ArrayList<>();
-        this.orientation = orientation;
+        this.orientation = true;
+        rotation = 1;
+    }
+
+    public void setRotation(int rotation) {
+        this.rotation = rotation;
+    }
+
+    public int getRotation() {
+        return rotation;
+    }
+
+    public double getRotationDegrees() {
+        double r;
+        switch (rotation) {
+            case 1:
+                r = Math.PI / 2;
+                break;
+            case 2:
+                r = Math.PI;
+                break;
+            case 3:
+                r = (3 * Math.PI) / 2;
+                break;
+            default:
+                r = 0.0;
+                break;
+        }
+        return r;
     }
 
     public boolean getOrientation() {
