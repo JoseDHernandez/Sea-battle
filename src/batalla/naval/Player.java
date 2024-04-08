@@ -11,16 +11,56 @@ import java.util.List;
  *
  * @author Jose
  */
-public class Player {
+public class Player implements Cell {
 
-    private String name;//Nombre jugador
-    private List<String> cells;//Celdas usadas
-    private List<Boat> boats;//Barcos del jugador
+    /**
+     * Nombre del jugador
+     */
+    private String name;
+    /**
+     * Tipo de ataque {@code true} Normal {@code false} PowerUp
+     */
+    private boolean typeAttack;
+    /**
+     * Lista de celdas usadas
+     */
+    private List<String> cells;
 
+    /**
+     * Lista de barcos del jugador [Id, Boat Object]
+     */
+    private List<Object> boats;
+
+    /**
+     * Constructor de la clase Player. Inicializa el nombre del jugador como una
+     * cadena vacía, la lista de celdas como una nueva lista vacía, y la lista
+     * de barcos como una nueva lista vacía.
+     */
     public Player() {
         name = "";
         cells = new ArrayList<>();
         boats = new ArrayList<>();
+        typeAttack = true;
+    }
+
+    /**
+     * Establece el tipo de ataque.
+     *
+     * @param type el tipo de ataque a establecer. {@code true} para ataque
+     * normal, {@code false} para PowerUp.
+     */
+    public void setTypeActtack(boolean type) {
+        typeAttack = type;
+    }
+
+    /**
+     * Obtiene el tipo de ataque.
+     *
+     * @return {@code true} si el tipo de ataque es normal, {@code false} si es
+     * PowerUp.
+     */
+    public boolean getTypeActtack() {
+        return typeAttack;
     }
 
     /**
@@ -41,21 +81,39 @@ public class Player {
         this.name = name;
     }
 
+    @Override
     public void addCell(String cell) {
         cells.add(cell);
     }
 
+    @Override
     public void addCell(List<String> cells) {
-        for (String cell : cells) {
-            this.cells.add(cell);
-        }
+        this.cells.addAll(cells);
     }
 
+    @Override
     public List<String> getCells() {
         return cells;
     }
 
+    /**
+     * Agrega un barco a la lista de barcos del jugador.
+     *
+     * @param boat El barco a agregar.
+     */
     public void addBoat(Boat boat) {
+        // Agerga la Id
+        boats.add(boats.isEmpty() ? 0 : (boats.size() / 2));
+        // Agrega el objeto boat
         boats.add(boat);
+    }
+
+    /**
+     * Obtiene la lista de barcos del jugador.
+     *
+     * @return La lista de barcos del jugador.
+     */
+    public List<Object> getBoatList() {
+        return boats;
     }
 }

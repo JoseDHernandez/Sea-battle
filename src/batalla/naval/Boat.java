@@ -5,14 +5,13 @@
 package batalla.naval;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  *
  * @author Jose
  */
-public class Boat {
+public class Boat implements Rotable {
 
     private int life; // Vida restante del barco
     private int size; // Longitud del barco
@@ -36,14 +35,17 @@ public class Boat {
         rotation = 1;
     }
 
+    @Override
     public void setRotation(int rotation) {
         this.rotation = rotation;
     }
 
+    @Override
     public int getRotation() {
         return rotation;
     }
 
+    @Override
     public double getRotationDegrees() {
         double r;
         switch (rotation) {
@@ -63,10 +65,12 @@ public class Boat {
         return r;
     }
 
+    @Override
     public boolean getOrientation() {
         return orientation;
     }
 
+    @Override
     public void setOrientation(boolean orientation) {
         this.orientation = orientation;
     }
