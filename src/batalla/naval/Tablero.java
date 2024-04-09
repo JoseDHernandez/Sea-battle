@@ -59,7 +59,7 @@ public class Tablero extends javax.swing.JPanel {
         //=== Enemy =====
         this.enemy = new Player();
         //===PowerUp=====
-        this.actualPowerUp = new Submarine();
+        this.actualPowerUp = new Locator();
         //===============
         //Inicar componentes
         initComponents();
@@ -2089,7 +2089,7 @@ public class Tablero extends javax.swing.JPanel {
                 submarine.setPosition(codeCoords);
                 //Verificar si el propio submario impacto algo
                 if (submarine.verifyImpact(coords, enemy.getCells())) {
-
+                    //
                 }
                 submarine.addCell(codeCoords);
 
@@ -2123,7 +2123,7 @@ public class Tablero extends javax.swing.JPanel {
                         //A-J
                         char af0 = afterShoot[0].substring(0, 1).charAt(0);
                         char af1 = afterShoot[1].substring(0, 1).charAt(0);
-                        System.out.println("af0: " + af0 + "  af1: " + af1);
+
                         if (!(af0 >= 'A' && af0 <= 'J')) {
                             shoot0 = false;
                         }
@@ -2176,14 +2176,16 @@ public class Tablero extends javax.swing.JPanel {
                     } else {
                         System.out.println("Fin de los torpedos ");
                         scheduler.shutdown();
+                        actualPowerUp = new Power();
+                        player.setTypeActtack(true);
                     }
 
                 }, 0, 1, TimeUnit.SECONDS);
 
                 //==== Fin del ciclo de animacion ======
+                /*
                 //Vaciar actualPowerUp
-                actualPowerUp = new Power();
-                player.setTypeActtack(true);
+                 */
             } else if (actualPowerUp instanceof Locator) {
 
             }
@@ -2265,9 +2267,9 @@ public class Tablero extends javax.swing.JPanel {
                 6 7 8
                  */
                 String coordLeftTop = ((char) (((int) coordTop.charAt(0)) - 1)) + "" + (num - 1);
-                String coordRightTop = ((char) (((int) coordTop.charAt(0)) + 1)) + "" + (num + 1);
-                String coordLeftButton = ((char) (((int) coordButton.charAt(0)) - 1)) + "" + (num - 1);
-                String coordRightButton = ((char) (((int) coordButton.charAt(0)) - 1)) + "" + (num + 1);
+                String coordRightTop = ((char) (((int) coordTop.charAt(0)) + 1)) + "" + (num - 1);
+                String coordLeftButton = ((char) (((int) coordButton.charAt(0)) - 1)) + "" + (num + 1);
+                String coordRightButton = ((char) (((int) coordButton.charAt(0)) + 1)) + "" + (num + 1);
                 //asginar coordenadas
                 //Arriba
                 coords.add(coordLeftTop);
@@ -2328,7 +2330,7 @@ public class Tablero extends javax.swing.JPanel {
     private ImageIcon getIcon(boolean type, int index) {
         StringBuilder typeOfImage = new StringBuilder();
         String url = "";
-        if (index == 9) {
+        if (index > 10) {
             return new ImageIcon(urlOfImage("ZX"));
         }
         if (inBuild && player.getTypeActtack()) {
@@ -2408,6 +2410,7 @@ public class Tablero extends javax.swing.JPanel {
                         default ->
                             url += "Torpedo";
                     }
+
                 } else {
                     switch (index) {
                         case 0 ->
@@ -2420,6 +2423,11 @@ public class Tablero extends javax.swing.JPanel {
                             url += "Torpedo";
                     }
                 }
+            }
+            if (index == 8) {
+                return rotateImage(new ImageIcon(urlOfImage(url)), ((Submarine) actualPowerUp).getRotationDegreesTorpedoes()[0]);
+            } else if (index == 9) {
+                return rotateImage(new ImageIcon(urlOfImage(url)), ((Submarine) actualPowerUp).getRotationDegreesTorpedoes()[1]);
             }
             //Retorna submarine
             return rotateImage(new ImageIcon(urlOfImage(url)), ((Submarine) actualPowerUp).getRotationDegrees());
@@ -2475,7 +2483,7 @@ public class Tablero extends javax.swing.JPanel {
                         getCell(sub.getTorpedoes().get(1)).setIcon(getIcon(type, 8));
                     }
                     getCell(cells.get(0)).setIcon(getIcon(type, 8));
-                    getCell(cells.get(1)).setIcon(getIcon(type, 8));
+                    getCell(cells.get(1)).setIcon(getIcon(type, 9));
                 } else {
                     //Submarino
                     getCell(cells.get(0)).setIcon(getIcon(type, 0));
@@ -2575,24 +2583,26 @@ public class Tablero extends javax.swing.JPanel {
         return temp;
     }
 
+    private int getNewRotation(int rt) {
+        if ((rt + 1) > 3) {
+            return 0;
+        }
+        return rt + 1;
+    }
+
     private void changeRotation() {
         if (inBuild) {
             actualBoat.setOrientation(!actualBoat.getOrientation());
             int rotation = actualBoat.getRotation();
-            if ((rotation + 1) > 3) {
-                actualBoat.setRotation(0);
-            } else {
-                actualBoat.setRotation(rotation + 1);
-            }
+            actualBoat.setRotation(getNewRotation(rotation));
+
         } else if (player.getTypeActtack() == false && actualPowerUp instanceof Submarine) {
             Submarine temp = (Submarine) actualPowerUp;
             temp.setOrientation(!temp.getOrientation());
-            int rotation = temp.getRotation();
-            if ((rotation + 1) > 3) {
-                temp.setRotation(0);
-            } else {
-                temp.setRotation(rotation + 1);
-            }
+            int rt[] = {getNewRotation(temp.getRotationTorpedoes()[0]), getNewRotation(temp.getRotationTorpedoes()[1])};
+            temp.setRotation(getNewRotation(temp.getRotation()));
+
+            temp.setRotationTorpedoes(rt);
         }
     }
 

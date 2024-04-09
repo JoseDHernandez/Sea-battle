@@ -17,12 +17,16 @@ public class Submarine extends Power implements Impactable, Rotable {
     private boolean orientation;//true = horizontal , false = vertical
     private int rotation;
     private List<String> torpedoes;
+    private int rotationTorpedoes0;
+    private int rotationTorpedoes1;
 
     public Submarine() {
         super();
         orientation = true;
         rotation = 1;
         torpedoes = new ArrayList<>();
+        rotationTorpedoes0 = 0;
+        rotationTorpedoes1 = 2;
     }
 
     public void setTorpedoes(String[] arr) {
@@ -119,10 +123,9 @@ public class Submarine extends Power implements Impactable, Rotable {
         return rotation;
     }
 
-    @Override
-    public double getRotationDegrees() {
+    private double rotationDegrees(int rot) {
         double r;
-        switch (rotation) {
+        switch (rot) {
             case 1:
                 r = Math.PI / 2;
                 break;
@@ -137,6 +140,27 @@ public class Submarine extends Power implements Impactable, Rotable {
                 break;
         }
         return r;
+    }
+
+    @Override
+    public double getRotationDegrees() {
+
+        return rotationDegrees(rotation);
+    }
+
+    public double[] getRotationDegreesTorpedoes() {
+        double[] degrees = {rotationDegrees(rotationTorpedoes0), rotationDegrees(rotationTorpedoes1)};
+        return degrees;
+    }
+
+    public void setRotationTorpedoes(int[] rot) {
+        rotationTorpedoes0 = rot[0];
+        rotationTorpedoes1 = rot[1];
+    }
+
+    public int[] getRotationTorpedoes() {
+        int[] t = {rotationTorpedoes0, rotationTorpedoes1};
+        return t;
     }
 
     @Override
