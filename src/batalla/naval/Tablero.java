@@ -4,15 +4,19 @@
  */
 package batalla.naval;
 
-import java.awt.Color;
-import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Image;
-import java.util.List;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -26,57 +30,64 @@ import javax.swing.JButton;
  */
 public class Tablero extends javax.swing.JPanel {
 
-    /**
-     * Creates new form Tablero
-     */
-    private boolean isPlayer;
-    private boolean inBuild;//Distinguir si esta en construccion o no
-    private Player player;
-    private Player enemy;
-    private Boat actualBoat; //Bote seleccionado
-    private Power actualPowerUp;
-    //private Component[] buttons;
-    private List<Object> buttons;
-    //============ Bordes =======================
+    // Tamaño del tablero y espaciado entre celdas
+    private int Size;
+    private final int Gap = 6;
+    private final int ButtonSize = 50;
+    private char LAST_LETTER; // Última letra posible en el tablero
+
+    // Indicadores de jugador y estado de construcción
+    private boolean isPlayer; // Si es el jugador o enemigo
+    private boolean inBuild; // Indica si se está construyendo el tablero
+
+    // Jugadores y elementos del juego
+    private Player player; // Jugador actual
+    private Player enemy; // Jugador enemigo
+    private Boat actualBoat; // Barco actualmente seleccionado
+    private Power actualPowerUp; // PowerUp actualmente seleccionado
+
+    // Lista de botones/elementos gráficos
+    private List<JButton> buttons; // Lista de botones
+
+    // Listas de bordes para validación de celdas
     private List<String> borderRight = new ArrayList<>();
     private List<String> borderLeft = new ArrayList<>();
     private List<String> borderTop = new ArrayList<>();
     private List<String> borderButton = new ArrayList<>();
-    //=============== Colores ==================
+
+    // Icono para celdas vacías
     private final ImageIcon VOID_CELL = new ImageIcon(System.getProperty("user.dir") + "\\src\\img\\Z.png");
-    //lista de celdas pintadas
+
+    // Lista de celdas "fantasma" pintadas
     private List<String> ghostCells = new ArrayList<>();
 
-    public Tablero() {
-        //Iniciar variables
-        this.isPlayer = true;
-        this.inBuild = false;
-        this.buttons = new ArrayList<>();
-        //=== Player======
-        this.player = new Player();
-        player.setTypeActtack(false);
-        this.actualBoat = new Boat(3);
-        //=== Enemy =====
-        this.enemy = new Player();
-        //===PowerUp=====
-        this.actualPowerUp = new Locator();
-        //===============
-        //Inicar componentes
-        initComponents();
-        //Almacenar botones en lista y cambiar icono por defecto Z
-        for (Component component : this.getComponents()) {
-            if (component instanceof JButton bt) {
-                if (bt.getName() != null) {
-                    //Id
-                    buttons.add(buttons.isEmpty() ? 0 : (buttons.size() / 2));
-                    //JButton
-                    buttons.add(bt);
-                    bt.setIcon(VOID_CELL);
-                }
-            }
-        }
-        //Bordes
-        setBorders();
+    // Programación de tareas periódicas
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+    /**
+     * Constructor de Tablero
+     *
+     * @param Size Tamaño del tablero
+     */
+    public Tablero(int Size) {
+        // Inicialización de variables
+        this.Size = Size; // Tamaño del tablero
+        this.LAST_LETTER = (char) ('A' + (Size - 1)); // Última letra en el tablero según el tamaño
+        this.isPlayer = true; // Indica si es el turno del jugador
+        this.inBuild = false; // Indica si se está construyendo el tablero
+        this.buttons = new ArrayList<>(); // Lista de botones y elementos gráficos del tablero
+
+        // Inicialización de jugadores y elementos del juego
+        this.player = new Player(); // Jugador actual
+        player.setTypeActtack(false); // Tipo de ataque del jugador
+        this.actualBoat = new Boat(3); // Barco actualmente seleccionado
+        this.enemy = new Player(); // Jugador enemigo
+        this.actualPowerUp = new Submarine(); // PowerUp actualmente seleccionado
+
+        // Inicialización de componentes gráficos y de juego
+        initComponents(); // Inicializa los componentes gráficos del tablero
+        initCells(); // Inicializa las celdas del tablero
+        setBorders(); // Define los bordes del tablero para validación de celdas
     }
 
     /**
@@ -89,1572 +100,22 @@ public class Tablero extends javax.swing.JPanel {
     private void initComponents() {
 
         jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
-        jButton7 = new javax.swing.JButton();
-        jButton8 = new javax.swing.JButton();
-        jButton9 = new javax.swing.JButton();
-        jButton10 = new javax.swing.JButton();
-        jButton11 = new javax.swing.JButton();
-        jButton12 = new javax.swing.JButton();
-        jButton13 = new javax.swing.JButton();
-        jButton14 = new javax.swing.JButton();
-        jButton15 = new javax.swing.JButton();
-        jButton16 = new javax.swing.JButton();
-        jButton17 = new javax.swing.JButton();
-        jButton18 = new javax.swing.JButton();
-        jButton19 = new javax.swing.JButton();
-        jButton20 = new javax.swing.JButton();
-        jButton21 = new javax.swing.JButton();
-        jButton22 = new javax.swing.JButton();
-        jButton23 = new javax.swing.JButton();
-        jButton24 = new javax.swing.JButton();
-        jButton25 = new javax.swing.JButton();
-        jButton26 = new javax.swing.JButton();
-        jButton27 = new javax.swing.JButton();
-        jButton28 = new javax.swing.JButton();
-        jButton29 = new javax.swing.JButton();
-        jButton30 = new javax.swing.JButton();
-        jButton31 = new javax.swing.JButton();
-        jButton32 = new javax.swing.JButton();
-        jButton33 = new javax.swing.JButton();
-        jButton34 = new javax.swing.JButton();
-        jButton35 = new javax.swing.JButton();
-        jButton36 = new javax.swing.JButton();
-        jButton37 = new javax.swing.JButton();
-        jButton38 = new javax.swing.JButton();
-        jButton39 = new javax.swing.JButton();
-        jButton40 = new javax.swing.JButton();
-        jButton41 = new javax.swing.JButton();
-        jButton42 = new javax.swing.JButton();
-        jButton43 = new javax.swing.JButton();
-        jButton44 = new javax.swing.JButton();
-        jButton45 = new javax.swing.JButton();
-        jButton46 = new javax.swing.JButton();
-        jButton47 = new javax.swing.JButton();
-        jButton48 = new javax.swing.JButton();
-        jButton49 = new javax.swing.JButton();
-        jButton50 = new javax.swing.JButton();
-        jButton51 = new javax.swing.JButton();
-        jButton52 = new javax.swing.JButton();
-        jButton53 = new javax.swing.JButton();
-        jButton54 = new javax.swing.JButton();
-        jButton55 = new javax.swing.JButton();
-        jButton56 = new javax.swing.JButton();
-        jButton57 = new javax.swing.JButton();
-        jButton58 = new javax.swing.JButton();
-        jButton59 = new javax.swing.JButton();
-        jButton60 = new javax.swing.JButton();
-        jButton61 = new javax.swing.JButton();
-        jButton62 = new javax.swing.JButton();
-        jButton63 = new javax.swing.JButton();
-        jButton64 = new javax.swing.JButton();
-        jButton65 = new javax.swing.JButton();
-        jButton66 = new javax.swing.JButton();
-        jButton67 = new javax.swing.JButton();
-        jButton68 = new javax.swing.JButton();
-        jButton69 = new javax.swing.JButton();
-        jButton70 = new javax.swing.JButton();
-        jButton71 = new javax.swing.JButton();
-        jButton72 = new javax.swing.JButton();
-        jButton73 = new javax.swing.JButton();
-        jButton74 = new javax.swing.JButton();
-        jButton75 = new javax.swing.JButton();
-        jButton76 = new javax.swing.JButton();
-        jButton77 = new javax.swing.JButton();
-        jButton78 = new javax.swing.JButton();
-        jButton79 = new javax.swing.JButton();
-        jButton80 = new javax.swing.JButton();
-        jButton81 = new javax.swing.JButton();
-        jButton82 = new javax.swing.JButton();
-        jButton83 = new javax.swing.JButton();
-        jButton84 = new javax.swing.JButton();
-        jButton85 = new javax.swing.JButton();
-        jButton86 = new javax.swing.JButton();
-        jButton87 = new javax.swing.JButton();
-        jButton88 = new javax.swing.JButton();
-        jButton89 = new javax.swing.JButton();
-        jButton90 = new javax.swing.JButton();
-        jButton91 = new javax.swing.JButton();
-        jButton92 = new javax.swing.JButton();
-        jButton93 = new javax.swing.JButton();
-        jButton94 = new javax.swing.JButton();
-        jButton95 = new javax.swing.JButton();
-        jButton96 = new javax.swing.JButton();
-        jButton97 = new javax.swing.JButton();
-        jButton98 = new javax.swing.JButton();
-        jButton99 = new javax.swing.JButton();
-        jButton100 = new javax.swing.JButton();
-        jButton101 = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
+        Panel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         L_Healtd = new javax.swing.JLabel();
         L_Size = new javax.swing.JLabel();
         L_Orientation = new javax.swing.JLabel();
         rotateButton = new javax.swing.JButton();
+        TablePanel = new javax.swing.JPanel();
 
         jButton1.setText("jButton1");
 
         setBackground(new java.awt.Color(204, 255, 255));
-        setMaximumSize(new java.awt.Dimension(800, 600));
         setMinimumSize(new java.awt.Dimension(800, 600));
         setPreferredSize(new java.awt.Dimension(800, 600));
 
-        jButton2.setBorder(null);
-        jButton2.setBorderPainted(false);
-        jButton2.setName("A2"); // NOI18N
-        jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton2MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton2MouseEntered(evt);
-            }
-        });
-
-        jButton3.setBorder(null);
-        jButton3.setBorderPainted(false);
-        jButton3.setName("A1"); // NOI18N
-        jButton3.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton3MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton3MouseEntered(evt);
-            }
-        });
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
-
-        jButton4.setBorder(null);
-        jButton4.setBorderPainted(false);
-        jButton4.setName("A4"); // NOI18N
-        jButton4.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton4MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton4MouseEntered(evt);
-            }
-        });
-
-        jButton5.setBorder(null);
-        jButton5.setBorderPainted(false);
-        jButton5.setName("A3"); // NOI18N
-        jButton5.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton5MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton5MouseEntered(evt);
-            }
-        });
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
-            }
-        });
-
-        jButton6.setBorder(null);
-        jButton6.setBorderPainted(false);
-        jButton6.setName("A6"); // NOI18N
-        jButton6.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton6MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton6MouseEntered(evt);
-            }
-        });
-
-        jButton7.setBorder(null);
-        jButton7.setBorderPainted(false);
-        jButton7.setName("A5"); // NOI18N
-        jButton7.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton7MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton7MouseEntered(evt);
-            }
-        });
-        jButton7.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton7ActionPerformed(evt);
-            }
-        });
-
-        jButton8.setBorder(null);
-        jButton8.setBorderPainted(false);
-        jButton8.setName("A8"); // NOI18N
-        jButton8.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton8MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton8MouseEntered(evt);
-            }
-        });
-
-        jButton9.setBorder(null);
-        jButton9.setBorderPainted(false);
-        jButton9.setName("A7"); // NOI18N
-        jButton9.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton9MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton9MouseEntered(evt);
-            }
-        });
-        jButton9.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton9ActionPerformed(evt);
-            }
-        });
-
-        jButton10.setBorder(null);
-        jButton10.setBorderPainted(false);
-        jButton10.setName("A10"); // NOI18N
-        jButton10.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton10MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton10MouseEntered(evt);
-            }
-        });
-
-        jButton11.setBorder(null);
-        jButton11.setBorderPainted(false);
-        jButton11.setName("A9"); // NOI18N
-        jButton11.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton11MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton11MouseEntered(evt);
-            }
-        });
-        jButton11.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton11ActionPerformed(evt);
-            }
-        });
-
-        jButton12.setBorder(null);
-        jButton12.setBorderPainted(false);
-        jButton12.setName("B9"); // NOI18N
-        jButton12.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton12MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton21MouseEntered(evt);
-            }
-        });
-        jButton12.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton12ActionPerformed(evt);
-            }
-        });
-
-        jButton13.setBorder(null);
-        jButton13.setBorderPainted(false);
-        jButton13.setName("B10"); // NOI18N
-        jButton13.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton13MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton21MouseEntered(evt);
-            }
-        });
-
-        jButton14.setBorder(null);
-        jButton14.setBorderPainted(false);
-        jButton14.setName("B8"); // NOI18N
-        jButton14.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton14MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton21MouseEntered(evt);
-            }
-        });
-
-        jButton15.setBorder(null);
-        jButton15.setBorderPainted(false);
-        jButton15.setName("B7"); // NOI18N
-        jButton15.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton15MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton21MouseEntered(evt);
-            }
-        });
-        jButton15.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton15ActionPerformed(evt);
-            }
-        });
-
-        jButton16.setBorder(null);
-        jButton16.setBorderPainted(false);
-        jButton16.setName("B6"); // NOI18N
-        jButton16.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton16MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton21MouseEntered(evt);
-            }
-        });
-
-        jButton17.setBorder(null);
-        jButton17.setBorderPainted(false);
-        jButton17.setName("B5"); // NOI18N
-        jButton17.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton17MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton21MouseEntered(evt);
-            }
-        });
-        jButton17.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton17ActionPerformed(evt);
-            }
-        });
-
-        jButton18.setBorder(null);
-        jButton18.setBorderPainted(false);
-        jButton18.setName("B4"); // NOI18N
-        jButton18.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton18MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton21MouseEntered(evt);
-            }
-        });
-
-        jButton19.setBorder(null);
-        jButton19.setBorderPainted(false);
-        jButton19.setName("B3"); // NOI18N
-        jButton19.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton19MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton21MouseEntered(evt);
-            }
-        });
-        jButton19.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton19ActionPerformed(evt);
-            }
-        });
-
-        jButton20.setBorder(null);
-        jButton20.setBorderPainted(false);
-        jButton20.setName("B2"); // NOI18N
-        jButton20.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton20MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton21MouseEntered(evt);
-            }
-        });
-
-        jButton21.setBorder(null);
-        jButton21.setBorderPainted(false);
-        jButton21.setName("B1"); // NOI18N
-        jButton21.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton21MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton21MouseEntered(evt);
-            }
-        });
-        jButton21.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton21ActionPerformed(evt);
-            }
-        });
-
-        jButton22.setBorder(null);
-        jButton22.setBorderPainted(false);
-        jButton22.setName("C9"); // NOI18N
-        jButton22.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton22MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton22.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton22ActionPerformed(evt);
-            }
-        });
-
-        jButton23.setBorder(null);
-        jButton23.setBorderPainted(false);
-        jButton23.setName("C10"); // NOI18N
-        jButton23.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton23MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton24.setBorder(null);
-        jButton24.setBorderPainted(false);
-        jButton24.setName("C8"); // NOI18N
-        jButton24.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton24MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton25.setBorder(null);
-        jButton25.setBorderPainted(false);
-        jButton25.setName("C7"); // NOI18N
-        jButton25.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton25MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton25.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton25ActionPerformed(evt);
-            }
-        });
-
-        jButton26.setBorder(null);
-        jButton26.setBorderPainted(false);
-        jButton26.setName("C6"); // NOI18N
-        jButton26.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton26MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton27.setBorder(null);
-        jButton27.setBorderPainted(false);
-        jButton27.setName("C5"); // NOI18N
-        jButton27.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton27MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton27.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton27ActionPerformed(evt);
-            }
-        });
-
-        jButton28.setBorder(null);
-        jButton28.setBorderPainted(false);
-        jButton28.setName("C4"); // NOI18N
-        jButton28.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton28MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton29.setBorder(null);
-        jButton29.setBorderPainted(false);
-        jButton29.setName("C3"); // NOI18N
-        jButton29.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton29MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton29.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton29ActionPerformed(evt);
-            }
-        });
-
-        jButton30.setBorder(null);
-        jButton30.setBorderPainted(false);
-        jButton30.setName("C2"); // NOI18N
-        jButton30.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton30MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton31.setBorder(null);
-        jButton31.setBorderPainted(false);
-        jButton31.setName("C1"); // NOI18N
-        jButton31.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton31MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton31.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton31ActionPerformed(evt);
-            }
-        });
-
-        jButton32.setBorder(null);
-        jButton32.setBorderPainted(false);
-        jButton32.setName("D9"); // NOI18N
-        jButton32.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton32MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton32.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton32ActionPerformed(evt);
-            }
-        });
-
-        jButton33.setBorder(null);
-        jButton33.setBorderPainted(false);
-        jButton33.setName("D10"); // NOI18N
-        jButton33.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton33MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton34.setBorder(null);
-        jButton34.setBorderPainted(false);
-        jButton34.setName("D8"); // NOI18N
-        jButton34.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton34MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton35.setBorder(null);
-        jButton35.setBorderPainted(false);
-        jButton35.setName("D7"); // NOI18N
-        jButton35.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton35MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton35.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton35ActionPerformed(evt);
-            }
-        });
-
-        jButton36.setBorder(null);
-        jButton36.setBorderPainted(false);
-        jButton36.setName("D6"); // NOI18N
-        jButton36.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton36MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton37.setBorder(null);
-        jButton37.setBorderPainted(false);
-        jButton37.setName("D5"); // NOI18N
-        jButton37.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton37MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton37.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton37ActionPerformed(evt);
-            }
-        });
-
-        jButton38.setBorder(null);
-        jButton38.setBorderPainted(false);
-        jButton38.setName("D4"); // NOI18N
-        jButton38.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton38MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton39.setBorder(null);
-        jButton39.setBorderPainted(false);
-        jButton39.setName("D3"); // NOI18N
-        jButton39.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton39MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton39.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton39ActionPerformed(evt);
-            }
-        });
-
-        jButton40.setBorder(null);
-        jButton40.setBorderPainted(false);
-        jButton40.setName("D2"); // NOI18N
-        jButton40.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton40MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton41.setBorder(null);
-        jButton41.setBorderPainted(false);
-        jButton41.setName("D1"); // NOI18N
-        jButton41.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton41MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton41.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton41ActionPerformed(evt);
-            }
-        });
-
-        jButton42.setBorder(null);
-        jButton42.setBorderPainted(false);
-        jButton42.setName("E9"); // NOI18N
-        jButton42.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton42MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton42.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton42ActionPerformed(evt);
-            }
-        });
-
-        jButton43.setBorder(null);
-        jButton43.setBorderPainted(false);
-        jButton43.setName("E10"); // NOI18N
-        jButton43.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton43MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton44.setBorder(null);
-        jButton44.setBorderPainted(false);
-        jButton44.setName("E8"); // NOI18N
-        jButton44.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton44MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton45.setBorder(null);
-        jButton45.setBorderPainted(false);
-        jButton45.setName("E7"); // NOI18N
-        jButton45.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton45MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton45.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton45ActionPerformed(evt);
-            }
-        });
-
-        jButton46.setBorder(null);
-        jButton46.setBorderPainted(false);
-        jButton46.setName("E6"); // NOI18N
-        jButton46.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton46MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton47.setBorder(null);
-        jButton47.setBorderPainted(false);
-        jButton47.setName("E5"); // NOI18N
-        jButton47.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton47MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton47.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton47ActionPerformed(evt);
-            }
-        });
-
-        jButton48.setBorder(null);
-        jButton48.setBorderPainted(false);
-        jButton48.setName("E4"); // NOI18N
-        jButton48.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton48MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton49.setBorder(null);
-        jButton49.setBorderPainted(false);
-        jButton49.setName("E3"); // NOI18N
-        jButton49.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton49MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton49.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton49ActionPerformed(evt);
-            }
-        });
-
-        jButton50.setBorder(null);
-        jButton50.setBorderPainted(false);
-        jButton50.setName("E2"); // NOI18N
-        jButton50.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton50MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton51.setBorder(null);
-        jButton51.setBorderPainted(false);
-        jButton51.setName("E1"); // NOI18N
-        jButton51.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton51MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton51.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton51ActionPerformed(evt);
-            }
-        });
-
-        jButton52.setBorder(null);
-        jButton52.setBorderPainted(false);
-        jButton52.setName("F9"); // NOI18N
-        jButton52.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton52MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton52.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton52ActionPerformed(evt);
-            }
-        });
-
-        jButton53.setBorder(null);
-        jButton53.setBorderPainted(false);
-        jButton53.setName("F10"); // NOI18N
-        jButton53.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton53MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton54.setBorder(null);
-        jButton54.setBorderPainted(false);
-        jButton54.setName("F8"); // NOI18N
-        jButton54.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton54MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton55.setBorder(null);
-        jButton55.setBorderPainted(false);
-        jButton55.setName("F7"); // NOI18N
-        jButton55.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton55MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton55.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton55ActionPerformed(evt);
-            }
-        });
-
-        jButton56.setBorder(null);
-        jButton56.setBorderPainted(false);
-        jButton56.setName("F6"); // NOI18N
-        jButton56.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton56MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton57.setBorder(null);
-        jButton57.setBorderPainted(false);
-        jButton57.setName("F5"); // NOI18N
-        jButton57.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton57MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton57.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton57ActionPerformed(evt);
-            }
-        });
-
-        jButton58.setBorder(null);
-        jButton58.setBorderPainted(false);
-        jButton58.setName("F4"); // NOI18N
-        jButton58.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton58MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton59.setBorder(null);
-        jButton59.setBorderPainted(false);
-        jButton59.setName("F3"); // NOI18N
-        jButton59.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton59MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton59.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton59ActionPerformed(evt);
-            }
-        });
-
-        jButton60.setBorder(null);
-        jButton60.setBorderPainted(false);
-        jButton60.setName("F2"); // NOI18N
-        jButton60.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton60MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton61.setBorder(null);
-        jButton61.setBorderPainted(false);
-        jButton61.setName("F1"); // NOI18N
-        jButton61.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton61MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton61.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton61ActionPerformed(evt);
-            }
-        });
-
-        jButton62.setBorder(null);
-        jButton62.setBorderPainted(false);
-        jButton62.setName("G9"); // NOI18N
-        jButton62.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton62MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton62.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton62ActionPerformed(evt);
-            }
-        });
-
-        jButton63.setBorder(null);
-        jButton63.setBorderPainted(false);
-        jButton63.setName("G10"); // NOI18N
-        jButton63.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton63MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton64.setBorder(null);
-        jButton64.setBorderPainted(false);
-        jButton64.setName("G8"); // NOI18N
-        jButton64.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton64MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton65.setBorder(null);
-        jButton65.setBorderPainted(false);
-        jButton65.setName("G7"); // NOI18N
-        jButton65.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton65MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton65.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton65ActionPerformed(evt);
-            }
-        });
-
-        jButton66.setBorder(null);
-        jButton66.setBorderPainted(false);
-        jButton66.setName("G6"); // NOI18N
-        jButton66.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton66MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton67.setBorder(null);
-        jButton67.setBorderPainted(false);
-        jButton67.setName("G5"); // NOI18N
-        jButton67.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton67MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton67.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton67ActionPerformed(evt);
-            }
-        });
-
-        jButton68.setBorder(null);
-        jButton68.setBorderPainted(false);
-        jButton68.setName("G4"); // NOI18N
-        jButton68.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton68MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton69.setBorder(null);
-        jButton69.setBorderPainted(false);
-        jButton69.setName("G3"); // NOI18N
-        jButton69.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton69MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton69.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton69ActionPerformed(evt);
-            }
-        });
-
-        jButton70.setBorder(null);
-        jButton70.setBorderPainted(false);
-        jButton70.setName("G2"); // NOI18N
-        jButton70.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton70MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton71.setBorder(null);
-        jButton71.setBorderPainted(false);
-        jButton71.setName("G1"); // NOI18N
-        jButton71.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton71MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton71.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton71ActionPerformed(evt);
-            }
-        });
-
-        jButton72.setBorder(null);
-        jButton72.setBorderPainted(false);
-        jButton72.setName("H9"); // NOI18N
-        jButton72.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton72MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton72.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton72ActionPerformed(evt);
-            }
-        });
-
-        jButton73.setBorder(null);
-        jButton73.setBorderPainted(false);
-        jButton73.setName("H10"); // NOI18N
-        jButton73.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton73MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton74.setBorder(null);
-        jButton74.setBorderPainted(false);
-        jButton74.setName("H8"); // NOI18N
-        jButton74.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton74MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton75.setBorder(null);
-        jButton75.setBorderPainted(false);
-        jButton75.setName("H7"); // NOI18N
-        jButton75.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton75MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton75.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton75ActionPerformed(evt);
-            }
-        });
-
-        jButton76.setBorder(null);
-        jButton76.setBorderPainted(false);
-        jButton76.setName("H6"); // NOI18N
-        jButton76.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton76MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton77.setBorder(null);
-        jButton77.setBorderPainted(false);
-        jButton77.setName("H5"); // NOI18N
-        jButton77.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton77MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton77.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton77ActionPerformed(evt);
-            }
-        });
-
-        jButton78.setBorder(null);
-        jButton78.setBorderPainted(false);
-        jButton78.setName("H4"); // NOI18N
-        jButton78.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton78MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton79.setBorder(null);
-        jButton79.setBorderPainted(false);
-        jButton79.setName("H3"); // NOI18N
-        jButton79.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton79MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton79.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton79ActionPerformed(evt);
-            }
-        });
-
-        jButton80.setBorder(null);
-        jButton80.setBorderPainted(false);
-        jButton80.setName("H2"); // NOI18N
-        jButton80.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton80MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton81.setBorder(null);
-        jButton81.setBorderPainted(false);
-        jButton81.setName("H1"); // NOI18N
-        jButton81.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton81MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton81.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton81ActionPerformed(evt);
-            }
-        });
-
-        jButton82.setBorder(null);
-        jButton82.setBorderPainted(false);
-        jButton82.setName("I9"); // NOI18N
-        jButton82.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton82MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton82.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton82ActionPerformed(evt);
-            }
-        });
-
-        jButton83.setBorder(null);
-        jButton83.setBorderPainted(false);
-        jButton83.setName("I10"); // NOI18N
-        jButton83.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton83MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton84.setBorder(null);
-        jButton84.setBorderPainted(false);
-        jButton84.setName("I8"); // NOI18N
-        jButton84.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton84MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton85.setBorder(null);
-        jButton85.setBorderPainted(false);
-        jButton85.setName("I7"); // NOI18N
-        jButton85.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton85MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton85.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton85ActionPerformed(evt);
-            }
-        });
-
-        jButton86.setBorder(null);
-        jButton86.setBorderPainted(false);
-        jButton86.setName("I6"); // NOI18N
-        jButton86.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton86MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton87.setBorder(null);
-        jButton87.setBorderPainted(false);
-        jButton87.setName("I5"); // NOI18N
-        jButton87.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton87MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton87.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton87ActionPerformed(evt);
-            }
-        });
-
-        jButton88.setBorder(null);
-        jButton88.setBorderPainted(false);
-        jButton88.setName("I4"); // NOI18N
-        jButton88.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton88MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton89.setBorder(null);
-        jButton89.setBorderPainted(false);
-        jButton89.setName("I3"); // NOI18N
-        jButton89.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton89MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton89.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton89ActionPerformed(evt);
-            }
-        });
-
-        jButton90.setBorder(null);
-        jButton90.setBorderPainted(false);
-        jButton90.setName("I2"); // NOI18N
-        jButton90.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton90MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton91.setBorder(null);
-        jButton91.setBorderPainted(false);
-        jButton91.setName("I1"); // NOI18N
-        jButton91.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton91MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton91.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton91ActionPerformed(evt);
-            }
-        });
-
-        jButton92.setBorder(null);
-        jButton92.setBorderPainted(false);
-        jButton92.setName("J9"); // NOI18N
-        jButton92.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton92MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton92.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton92ActionPerformed(evt);
-            }
-        });
-
-        jButton93.setBorder(null);
-        jButton93.setBorderPainted(false);
-        jButton93.setName("J10"); // NOI18N
-        jButton93.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton93MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton94.setBorder(null);
-        jButton94.setBorderPainted(false);
-        jButton94.setName("J8"); // NOI18N
-        jButton94.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton94MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton95.setBorder(null);
-        jButton95.setBorderPainted(false);
-        jButton95.setName("J7"); // NOI18N
-        jButton95.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton95MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton95.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton95ActionPerformed(evt);
-            }
-        });
-
-        jButton96.setBorder(null);
-        jButton96.setBorderPainted(false);
-        jButton96.setName("J6"); // NOI18N
-        jButton96.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton96MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton97.setBorder(null);
-        jButton97.setBorderPainted(false);
-        jButton97.setName("J5"); // NOI18N
-        jButton97.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton97MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton97.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton97ActionPerformed(evt);
-            }
-        });
-
-        jButton98.setBorder(null);
-        jButton98.setBorderPainted(false);
-        jButton98.setName("J4"); // NOI18N
-        jButton98.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton98MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton99.setBorder(null);
-        jButton99.setBorderPainted(false);
-        jButton99.setName("J3"); // NOI18N
-        jButton99.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton99MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton99.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton99ActionPerformed(evt);
-            }
-        });
-
-        jButton100.setBorder(null);
-        jButton100.setBorderPainted(false);
-        jButton100.setName("J2"); // NOI18N
-        jButton100.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton100MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-
-        jButton101.setBorder(null);
-        jButton101.setBorderPainted(false);
-        jButton101.setName("J1"); // NOI18N
-        jButton101.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton101MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jButton31MouseEntered(evt);
-            }
-        });
-        jButton101.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton101ActionPerformed(evt);
-            }
-        });
-
-        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        Panel.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel1.setText("Barco actual:");
 
@@ -1684,28 +145,28 @@ public class Tablero extends javax.swing.JPanel {
             }
         });
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
+        javax.swing.GroupLayout PanelLayout = new javax.swing.GroupLayout(Panel);
+        Panel.setLayout(PanelLayout);
+        PanelLayout.setHorizontalGroup(
+            PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelLayout.createSequentialGroup()
+                .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel1))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
+                    .addGroup(PanelLayout.createSequentialGroup()
                         .addGap(27, 27, 27)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(L_Healtd)
                             .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(L_Size)
                             .addComponent(L_Orientation)
                             .addComponent(rotateButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addGap(0, 27, Short.MAX_VALUE))
+                .addGap(0, 24, Short.MAX_VALUE))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        PanelLayout.setVerticalGroup(
+            PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -1718,508 +179,215 @@ public class Tablero extends javax.swing.JPanel {
                 .addComponent(L_Orientation)
                 .addGap(18, 18, 18)
                 .addComponent(rotateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(196, Short.MAX_VALUE))
         );
+
+        TablePanel.setLayout(new java.awt.GridLayout());
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(22, 22, 22)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton11, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton9, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap()
+                .addComponent(Panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton13, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton12, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton14, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton15, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton16, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton17, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton18, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton19, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton20, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton21, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton23, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton22, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton24, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton25, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton26, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton27, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton28, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton29, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton30, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton31, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton33, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton32, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton34, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton35, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton36, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton37, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton38, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton39, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton40, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton41, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton43, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton42, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton44, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton45, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton46, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton47, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton48, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton49, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton50, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton51, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton53, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton52, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton54, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton55, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton56, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton57, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton58, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton59, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton60, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton61, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton63, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton62, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton64, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton65, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton66, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton67, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton68, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton69, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton70, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton71, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton73, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton72, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton74, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton75, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton76, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton77, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton78, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton79, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton80, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton81, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton83, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton82, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton84, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton85, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton86, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton87, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton88, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton89, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton90, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton91, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton93, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton92, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton94, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton95, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton98, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton99, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton97, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton96, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton100, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton101, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(TablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton101, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton100, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton99, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton98, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton97, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jButton81, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton80, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton79, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton78, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton77, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton76, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton75, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton74, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton72, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton73, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jButton71, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton70, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton69, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton68, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton67, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton66, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton65, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton64, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton62, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton63, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jButton61, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton60, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton59, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton58, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton57, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton56, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton55, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton54, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton52, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton53, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addComponent(jButton51, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(jButton50, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(jButton49, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(jButton48, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(jButton47, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(jButton46, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(jButton45, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(jButton44, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(jButton42, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(jButton43, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jButton41, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton40, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton39, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton38, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton37, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton36, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton35, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton34, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton32, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton33, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jButton31, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton30, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton29, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton28, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton27, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton26, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton25, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton24, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton22, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton23, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jButton21, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton20, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton19, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton18, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton17, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton16, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton15, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton14, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton12, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton13, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton9, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton11, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))))))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jButton91, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton90, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton89, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton88, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton87, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jButton96, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jButton95, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton94, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton92, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton93, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jButton86, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton85, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton84, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton82, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton83, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
-                .addContainerGap(26, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(TablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(95, 95, 95))
         );
     }// </editor-fold>//GEN-END:initComponents
     private String urlOfImage(String name) {
         return System.getProperty("user.dir") + "\\src\\img\\" + name + ".png";
     }
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    private void PositionClick(java.awt.event.MouseEvent button) {
-        JButton Cell = (JButton) button.getComponent();
+    /**
+     * Funcion de animacion y verificacion de impacto de los torpedos de un
+     * submarino
+     *
+     * @param submarine Objeto submarino (actualPower)
+     * @param codeCoords Coordenadas de la celda central (Celda seleccionada)
+     * @param coords Lista de celdas en coordenas del submarino
+     */
+    private void submarineTorpedoes(Submarine submarine, String codeCoords, List<String> coords) {
+
+        ScheduledFuture<?> task = scheduler.scheduleAtFixedRate(() -> {
+
+            //Array de las cordenas de los torpedos
+            String[] shootsCoords = (submarine.getTorpedoes().isEmpty())
+                    ? new String[]{submarine.getPosition(), submarine.getPosition()}
+                    : submarine.getTorpedoes().toArray(new String[0]);
+
+            //Siente coordenada del torpedo
+            String[] afterShoot = (submarine.getTorpedoes().isEmpty())
+                    ? submarine.shoot(player.getCells()) : submarine.shoot(shootsCoords, enemy.getCells());
+
+            // Código de la tarea a ejecutar
+            boolean shoot0 = true;
+            boolean shoot1 = true;
+            //Verificar si se pasa de los limites el afterShoot
+            if (!submarine.getOrientation()) {
+                //1-10
+                int af0 = Integer.parseInt(afterShoot[0].substring(1));
+                int af1 = Integer.parseInt(afterShoot[1].substring(1));
+                if (af0 < 1 || af0 > Size) {
+                    shoot0 = false;
+                }
+                if (af1 < 1 || af1 > Size) {
+                    shoot1 = false;
+                }
+            } else {
+                //A-J
+                char af0 = afterShoot[0].substring(0, 1).charAt(0);
+                char af1 = afterShoot[1].substring(0, 1).charAt(0);
+                if (!(af0 >= 'A' && af0 <= LAST_LETTER)) {
+                    shoot0 = false;
+                }
+                if (!(af1 >= 'A' && af1 <= LAST_LETTER)) {
+                    shoot1 = false;
+                }
+            }
+            //se ejecuta el analizis de impacto
+            //TODO: Verificar impacto con entidades
+
+            if (shoot0 || shoot1) {
+
+                //Posion anterior de torpedos
+                if (!shootsCoords[0].equals(codeCoords)) {
+                    submarine.setTorpedoes(shootsCoords);
+
+                }
+                //Validar si hay algun impacto en alguno de los lados
+                if (submarine.verifyImpact(Arrays.asList(afterShoot), coords)) {
+                    if (shoot0 && submarine.verifyImpact(afterShoot[0], coords)) {
+
+                        shootsCoords[1] = afterShoot[1];
+                        shoot0 = false;
+
+                    }
+                    if (shoot1 && submarine.verifyImpact(afterShoot[1], coords)) {
+                        shootsCoords[0] = afterShoot[0];
+
+                        shoot1 = false;
+                    }
+                } else {
+                    //Nuevas coordenas
+                    shootsCoords = afterShoot;
+                }
+
+                // shootsCoords a list
+                List<String> shootList = Arrays.asList(shootsCoords);
+                afterShoot = submarine.shoot(shootList);
+                //Registrar coordenadas
+                submarine.addCell(shootList);
+                submarine.setTorpedoes(shootsCoords);
+                //Cambiar icono por torpedo
+                paintCells(true, shootList);
+                player.addCell(shootList);
+                //Cmabiar torpedo por impacto
+                if (shoot0 == false) {
+                    System.out.println("Impacto en 0");
+                }
+                if (shoot1 == false) {
+                    System.out.println("Impacto en 1");
+                }
+            } else {
+                System.out.println("Fin de los torpedos ");
+                scheduler.shutdown();
+                actualPowerUp = new Power();
+                player.setTypeActtack(true);
+            }
+
+        }, 0, 1, TimeUnit.SECONDS);
+
+    }
+
+    /**
+     * Maneja el evento de clic de una celda del tablero.
+     *
+     * @param Cell El botón de celda en el que se hizo clic.
+     */
+    private void PositionClick(JButton Cell) {
+        //JButton Cell = (JButton) button.getComponent();
         String codeCoords = Cell.getName();
         List<String> coords = actualBoat.getSize() > 1 ? entityToCells(codeCoords) : Arrays.asList(codeCoords);
         if (validateCells(coords) && validateCellPosition(codeCoords)) {
+            //Entidades de una celda
             player.addCell(coords);
             actualBoat.setCoords(coords);
             player.addBoat(actualBoat);
             paintCells(true, coords);
-            //================Animaciones de PowerUp====================
+            //================PowerUp====================
             if (actualPowerUp instanceof Submarine) {
                 Submarine submarine = (Submarine) actualPowerUp;
                 //Establer posicion para atacar
-
                 submarine.setPosition(codeCoords);
                 //Verificar si el propio submario impacto algo
                 if (submarine.verifyImpact(coords, enemy.getCells())) {
-                    //
+                    //TODO: Verificar impacto del submarina en las tre coordenadas de su ubicacion (validar si hay una mina)
                 }
                 submarine.addCell(codeCoords);
 
-                //==== Ciclo de animacion y ejecucion
-                ScheduledFuture<?> task = scheduler.scheduleAtFixedRate(() -> {
+                //Ciclo de animacion y ejecucion de los torpedos
+                submarineTorpedoes(submarine, codeCoords, coords);
 
-                    //Array de las cordenas de los torpedos
-                    String[] shootsCoords = (submarine.getTorpedoes().isEmpty())
-                            ? new String[]{submarine.getPosition(), submarine.getPosition()}
-                            : submarine.getTorpedoes().toArray(new String[0]);
-
-                    //Siente coordenada del torpedo
-                    String[] afterShoot = (submarine.getTorpedoes().isEmpty())
-                            ? submarine.shoot(player.getCells()) : submarine.shoot(shootsCoords, enemy.getCells());
-
-                    // Código de la tarea a ejecutar
-                    boolean shoot0 = true;
-                    boolean shoot1 = true;
-                    //Verificar si se pasa de los limites el afterShoot
-                    if (!submarine.getOrientation()) {
-                        //1-10
-                        int af0 = Integer.parseInt(afterShoot[0].substring(1));
-                        int af1 = Integer.parseInt(afterShoot[1].substring(1));
-                        if (af0 < 1 || af0 > 10) {
-                            shoot0 = false;
-                        }
-                        if (af1 < 1 || af1 > 10) {
-                            shoot1 = false;
-                        }
-                    } else {
-                        //A-J
-                        char af0 = afterShoot[0].substring(0, 1).charAt(0);
-                        char af1 = afterShoot[1].substring(0, 1).charAt(0);
-
-                        if (!(af0 >= 'A' && af0 <= 'J')) {
-                            shoot0 = false;
-                        }
-                        if (!(af1 >= 'A' && af1 <= 'J')) {
-                            shoot1 = false;
-                        }
-                    }
-                    //se ejecuta el analizis de impacto
-                    if (shoot0 || shoot1) {
-
-                        //Posion anterior de torpedos
-                        if (!shootsCoords[0].equals(codeCoords)) {
-                            submarine.setTorpedoes(shootsCoords);
-
-                        }
-                        //Validar si hay algun impacto en alguno de los lados
-                        if (submarine.verifyImpact(Arrays.asList(afterShoot), coords)) {
-                            if (shoot0 && submarine.verifyImpact(afterShoot[0], coords)) {
-
-                                shootsCoords[1] = afterShoot[1];
-                                shoot0 = false;
-
-                            }
-                            if (shoot1 && submarine.verifyImpact(afterShoot[1], coords)) {
-                                shootsCoords[0] = afterShoot[0];
-
-                                shoot1 = false;
-                            }
-                        } else {
-                            //Nuevas coordenas
-                            shootsCoords = afterShoot;
-                        }
-
-                        // shootsCoords a list
-                        List<String> shootList = Arrays.asList(shootsCoords);
-                        afterShoot = submarine.shoot(shootList);
-                        //Registrar coordenadas
-                        submarine.addCell(shootList);
-                        submarine.setTorpedoes(shootsCoords);
-                        //Cambiar icono por torpedo
-                        paintCells(true, shootList);
-                        player.addCell(shootList);
-                        //Cmabiar torpedo por impacto
-                        if (shoot0 == false) {
-                            System.out.println("Impacto en 0");
-                        }
-                        if (shoot1 == false) {
-                            System.out.println("Impacto en 1");
-                        }
-                    } else {
-                        System.out.println("Fin de los torpedos ");
-                        scheduler.shutdown();
-                        actualPowerUp = new Power();
-                        player.setTypeActtack(true);
-                    }
-
-                }, 0, 1, TimeUnit.SECONDS);
-
-                //==== Fin del ciclo de animacion ======
-                /*
-                //Vaciar actualPowerUp
-                 */
+                //TODO:Vaciar actualPowerUp
             } else if (actualPowerUp instanceof Locator) {
-
+                //TODO:Logica de locator
             }
         }
 
     }
 
+    /**
+     * Estable las coordenadas de los bordes en sus respectivas listas
+     */
     private void setBorders() {
-
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= Size; i++) {
             borderRight.add("A" + i);
-            borderLeft.add("J" + i);
+            borderLeft.add(String.valueOf(LAST_LETTER) + i);
         }
 
-        for (char letra = 'A'; letra <= 'J'; letra++) {
+        for (char letra = 'A'; letra <= LAST_LETTER; letra++) {
             borderTop.add(letra + "1");
-            borderButton.add(letra + "10");
+            borderButton.add(letra + String.valueOf(Size));
         }
 
     }
 
+    /**
+     * Obtiene el botón de celda correspondiente al nombre especificado.
+     *
+     * @param name El nombre (Coordenada) del botón de celda que se desea
+     * obtener.
+     * @return El botón de celda correspondiente al nombre especificado.
+     * @throws IllegalArgumentException si no se encuentra ningún botón con el
+     * nombre especificado.
+     */
     private JButton getCell(String name) {
-
-        for (int i = 1; i < buttons.size(); i += 2) {
-            if (buttons.get(i) instanceof JButton bt) {
-                if (bt.getName().equals(name)) {
-                    return bt;
-                }
+        for (JButton bt : buttons) {
+            if (bt.getName().equals(name)) {
+                return bt;
             }
         }
-        //Retorna un boton "falso"
-        return new JButton();
+        throw new IllegalArgumentException("No se encontró ningún botón con el nombre especificado: " + name);
     }
 
+    /**
+     * Convierte una coordenada en una lista de coordenadas cercanas, según las
+     * reglas del juego para una entidad.
+     *
+     * @param coord La coordenada a convertir.
+     * @return Una lista de coordenadas ocupadas por la entidad.
+     */
     private List<String> entityToCells(String coord) {
         List<String> coords = new ArrayList<>();
         int num = Integer.parseInt(coord.substring(1));
@@ -2300,6 +468,10 @@ public class Tablero extends javax.swing.JPanel {
         return coords;
     }
 
+    /**
+     * Borra las celdas fantasma del tablero, restaurando su apariencia original
+     * a {@code VOID_CELL}.
+     */
     private void clearGhostCells() {
 
         for (String cell : ghostCells) {
@@ -2308,6 +480,13 @@ public class Tablero extends javax.swing.JPanel {
         ghostCells = new ArrayList<>();
     }
 
+    /**
+     * Rota la imagen especificada por un ángulo dado.
+     *
+     * @param icon La imagen a rotar.
+     * @param angle El ángulo de rotación en radianes.
+     * @return Una nueva imagen rotada.
+     */
     public ImageIcon rotateImage(ImageIcon icon, double angle) {
         Image image = icon.getImage();
         int w = image.getWidth(null);
@@ -2327,7 +506,18 @@ public class Tablero extends javax.swing.JPanel {
         return new ImageIcon(rotatedImage);
     }
 
+    /**
+     * Obtiene un ImageIcon para un tipo específico de celda en función de
+     * varios factores (tipo de barco, power up, etc).
+     *
+     * @param type El tipo de celda.
+     * @param index El índice de la longitud de la entidad o parte espeficica
+     * (Mayores a 10 para celda impactada, 0 - 2 Barcos y submarino, 8 y 9
+     * Torpedos, 0 - 8 Localizador con 4 reservador para GPS).
+     * @return Un ImageIcon para la celda especificada.
+     */
     private ImageIcon getIcon(boolean type, int index) {
+
         StringBuilder typeOfImage = new StringBuilder();
         String url = "";
         if (index > 10) {
@@ -2434,6 +624,15 @@ public class Tablero extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Este método se encarga de pintar las celdas del tablero según diferentes
+     * condiciones, como el tipo de estado (ataque o jugada), la presencia de un
+     * PowerUp activo y el tipo de PowerUp.
+     *
+     * @param type indica si se está pintando una celda real (true) o una celda
+     * "fantasma" para previsualización (false).
+     * @param cells lista de coordenadas de las celdas a pintar.
+     */
     private void paintCells(boolean type, List<String> cells) {
         //Limpiar celdas
         clearGhostCells();
@@ -2499,14 +698,35 @@ public class Tablero extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Este método se encarga de pintar las celdas del tablero como celdas
+     * "fantasma" para previsualización.
+     *
+     * @param cells lista de coordenadas de las celdas a pintar.
+     */
     private void paintCells(List<String> cells) {
         paintCells(false, cells);
     }
 
+    /**
+     * Este método se encarga de pintar una celda del tablero como una celda
+     * "fantasma" para previsualización.
+     *
+     * @param cell La coordenada de la celda a pintar.
+     */
     private void paintCells(String cell) {
         paintCells(false, Arrays.asList(cell));
     }
 
+    /**
+     * Valida si las celdas especificadas están disponibles para colocar un
+     * barco. Comprueba si alguna de las celdas especificadas ya está ocupada
+     * por otro barco.
+     *
+     * @param cells La lista de celdas a validar.
+     * @return {@code true} si todas las celdas están disponibles, {@code false}
+     * si al menos una celda está ocupada.
+     */
     private boolean validateCells(List<String> cells) {
         for (String cell : cells) {
             if (player.getCells().contains(cell)) {
@@ -2516,6 +736,16 @@ public class Tablero extends javax.swing.JPanel {
         return true;
     }
 
+    /**
+     * Valida si la posición de la celda especificada es válida para colocar una
+     * entidad. Comprueba si la celda está dentro de los límites del tablero y
+     * si es una posición válida para la orientación y tamaño de la entidad.
+     *
+     * @param cellName El nombre de la celda a validar.
+     * @return {@code true} si la posición de la celda es válida, {@code false}
+     * si la posición está fuera de los límites o no es adecuada para la entidad
+     * actual.
+     */
     private boolean validateCellPosition(String cellName) {
         boolean temp = false;
         if (inBuild && player.getTypeActtack()) {
@@ -2583,6 +813,12 @@ public class Tablero extends javax.swing.JPanel {
         return temp;
     }
 
+    /**
+     * Obtiene la nueva posición de la rotación.
+     *
+     * @param rt El número de la rotación actual.
+     * @return El nuevo número de la posición de la rotación.
+     */
     private int getNewRotation(int rt) {
         if ((rt + 1) > 3) {
             return 0;
@@ -2590,6 +826,11 @@ public class Tablero extends javax.swing.JPanel {
         return rt + 1;
     }
 
+    /**
+     * Cambia la orientación de un barco en modo de construcción o la
+     * orientación de un submarino en modo de ataque. Actualiza también la
+     * rotación del barco o submarino.
+     */
     private void changeRotation() {
         if (inBuild) {
             actualBoat.setOrientation(!actualBoat.getOrientation());
@@ -2606,8 +847,14 @@ public class Tablero extends javax.swing.JPanel {
         }
     }
 
-    private void mouseHover(java.awt.event.MouseEvent mouse) {
-        String cellName = mouse.getComponent().getName();
+    /**
+     * Maneja el evento de pasar el mouse sobre una celda en el tablero, para
+     * dibujar el "fantasma" de la entidad.
+     *
+     * @param cellName El nombre de la celda sobre la que se ha pasado el mouse.
+     */
+    private void mouseHover(String cellName) {
+        //String cellName = mouse.getComponent().getName();
         //Verificar que no este usada
         List<String> coords = (!(actualPowerUp instanceof Locator || actualPowerUp instanceof Submarine) || actualBoat.getSize() > 1) ? entityToCells(cellName) : Arrays.asList(cellName);
         if (validateCells(coords)) {
@@ -2620,761 +867,83 @@ public class Tablero extends javax.swing.JPanel {
 
         }
     }
-    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton2MouseClicked
 
-    private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton3MouseClicked
-
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
-
-    private void jButton4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton4MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton4MouseClicked
-
-    private void jButton5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton5MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton5MouseClicked
-
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton5ActionPerformed
-
-    private void jButton6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton6MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton6MouseClicked
-
-    private void jButton7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton7MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton7MouseClicked
-
-    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton7ActionPerformed
-
-    private void jButton8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton8MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton8MouseClicked
-
-    private void jButton9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton9MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton9MouseClicked
-
-    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton9ActionPerformed
-
-    private void jButton10MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton10MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton10MouseClicked
-
-    private void jButton11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton11MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton11MouseClicked
-
-    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton11ActionPerformed
-
-    private void jButton12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton12MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton12MouseClicked
-
-    private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton12ActionPerformed
-
-    private void jButton13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton13MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton13MouseClicked
-
-    private void jButton14MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton14MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton14MouseClicked
-
-    private void jButton15MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton15MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton15MouseClicked
-
-    private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton15ActionPerformed
-
-    private void jButton16MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton16MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton16MouseClicked
-
-    private void jButton17MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton17MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton17MouseClicked
-
-    private void jButton17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton17ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton17ActionPerformed
-
-    private void jButton18MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton18MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton18MouseClicked
-
-    private void jButton19MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton19MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton19MouseClicked
-
-    private void jButton19ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton19ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton19ActionPerformed
-
-    private void jButton20MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton20MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton20MouseClicked
-
-    private void jButton21MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton21MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton21MouseClicked
-
-    private void jButton21ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton21ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton21ActionPerformed
-
-    private void jButton22MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton22MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton22MouseClicked
-
-    private void jButton22ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton22ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton22ActionPerformed
-
-    private void jButton23MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton23MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton23MouseClicked
-
-    private void jButton24MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton24MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton24MouseClicked
-
-    private void jButton25MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton25MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton25MouseClicked
-
-    private void jButton25ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton25ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton25ActionPerformed
-
-    private void jButton26MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton26MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton26MouseClicked
-
-    private void jButton27MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton27MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton27MouseClicked
-
-    private void jButton27ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton27ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton27ActionPerformed
-
-    private void jButton28MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton28MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton28MouseClicked
-
-    private void jButton29MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton29MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton29MouseClicked
-
-    private void jButton29ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton29ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton29ActionPerformed
-
-    private void jButton30MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton30MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton30MouseClicked
-
-    private void jButton31MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton31MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton31MouseClicked
-
-    private void jButton31ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton31ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton31ActionPerformed
-
-    private void jButton32MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton32MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton32MouseClicked
-
-    private void jButton32ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton32ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton32ActionPerformed
-
-    private void jButton33MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton33MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton33MouseClicked
-
-    private void jButton34MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton34MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton34MouseClicked
-
-    private void jButton35MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton35MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton35MouseClicked
-
-    private void jButton35ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton35ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton35ActionPerformed
-
-    private void jButton36MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton36MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton36MouseClicked
-
-    private void jButton37MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton37MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton37MouseClicked
-
-    private void jButton37ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton37ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton37ActionPerformed
-
-    private void jButton38MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton38MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton38MouseClicked
-
-    private void jButton39MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton39MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton39MouseClicked
-
-    private void jButton39ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton39ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton39ActionPerformed
-
-    private void jButton40MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton40MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton40MouseClicked
-
-    private void jButton41MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton41MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton41MouseClicked
-
-    private void jButton41ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton41ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton41ActionPerformed
-
-    private void jButton42MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton42MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton42MouseClicked
-
-    private void jButton42ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton42ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton42ActionPerformed
-
-    private void jButton43MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton43MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton43MouseClicked
-
-    private void jButton44MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton44MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton44MouseClicked
-
-    private void jButton45MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton45MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton45MouseClicked
-
-    private void jButton45ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton45ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton45ActionPerformed
-
-    private void jButton46MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton46MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton46MouseClicked
-
-    private void jButton47MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton47MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton47MouseClicked
-
-    private void jButton47ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton47ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton47ActionPerformed
-
-    private void jButton48MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton48MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton48MouseClicked
-
-    private void jButton49MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton49MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton49MouseClicked
-
-    private void jButton49ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton49ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton49ActionPerformed
-
-    private void jButton50MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton50MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton50MouseClicked
-
-    private void jButton51MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton51MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton51MouseClicked
-
-    private void jButton51ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton51ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton51ActionPerformed
-
-    private void jButton52MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton52MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton52MouseClicked
-
-    private void jButton52ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton52ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton52ActionPerformed
-
-    private void jButton53MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton53MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton53MouseClicked
-
-    private void jButton54MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton54MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton54MouseClicked
-
-    private void jButton55MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton55MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton55MouseClicked
-
-    private void jButton55ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton55ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton55ActionPerformed
-
-    private void jButton56MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton56MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton56MouseClicked
-
-    private void jButton57MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton57MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton57MouseClicked
-
-    private void jButton57ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton57ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton57ActionPerformed
-
-    private void jButton58MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton58MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton58MouseClicked
-
-    private void jButton59MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton59MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton59MouseClicked
-
-    private void jButton59ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton59ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton59ActionPerformed
-
-    private void jButton60MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton60MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton60MouseClicked
-
-    private void jButton61MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton61MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton61MouseClicked
-
-    private void jButton61ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton61ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton61ActionPerformed
-
-    private void jButton62MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton62MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton62MouseClicked
-
-    private void jButton62ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton62ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton62ActionPerformed
-
-    private void jButton63MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton63MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton63MouseClicked
-
-    private void jButton64MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton64MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton64MouseClicked
-
-    private void jButton65MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton65MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton65MouseClicked
-
-    private void jButton65ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton65ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton65ActionPerformed
-
-    private void jButton66MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton66MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton66MouseClicked
-
-    private void jButton67MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton67MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton67MouseClicked
-
-    private void jButton67ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton67ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton67ActionPerformed
-
-    private void jButton68MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton68MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton68MouseClicked
-
-    private void jButton69MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton69MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton69MouseClicked
-
-    private void jButton69ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton69ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton69ActionPerformed
-
-    private void jButton70MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton70MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton70MouseClicked
-
-    private void jButton71MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton71MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton71MouseClicked
-
-    private void jButton71ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton71ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton71ActionPerformed
-
-    private void jButton72MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton72MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton72MouseClicked
-
-    private void jButton72ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton72ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton72ActionPerformed
-
-    private void jButton73MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton73MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton73MouseClicked
-
-    private void jButton74MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton74MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton74MouseClicked
-
-    private void jButton75MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton75MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton75MouseClicked
-
-    private void jButton75ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton75ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton75ActionPerformed
-
-    private void jButton76MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton76MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton76MouseClicked
-
-    private void jButton77MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton77MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton77MouseClicked
-
-    private void jButton77ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton77ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton77ActionPerformed
-
-    private void jButton78MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton78MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton78MouseClicked
-
-    private void jButton79MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton79MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton79MouseClicked
-
-    private void jButton79ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton79ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton79ActionPerformed
-
-    private void jButton80MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton80MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton80MouseClicked
-
-    private void jButton81MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton81MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton81MouseClicked
-
-    private void jButton81ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton81ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton81ActionPerformed
-
-    private void jButton82MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton82MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton82MouseClicked
-
-    private void jButton82ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton82ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton82ActionPerformed
-
-    private void jButton83MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton83MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton83MouseClicked
-
-    private void jButton84MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton84MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton84MouseClicked
-
-    private void jButton85MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton85MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton85MouseClicked
-
-    private void jButton85ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton85ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton85ActionPerformed
-
-    private void jButton86MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton86MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton86MouseClicked
-
-    private void jButton87MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton87MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton87MouseClicked
-
-    private void jButton87ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton87ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton87ActionPerformed
-
-    private void jButton88MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton88MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton88MouseClicked
-
-    private void jButton89MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton89MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton89MouseClicked
-
-    private void jButton89ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton89ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton89ActionPerformed
-
-    private void jButton90MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton90MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton90MouseClicked
-
-    private void jButton91MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton91MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton91MouseClicked
-
-    private void jButton91ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton91ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton91ActionPerformed
-
-    private void jButton92MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton92MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton92MouseClicked
-
-    private void jButton92ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton92ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton92ActionPerformed
-
-    private void jButton93MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton93MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton93MouseClicked
-
-    private void jButton94MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton94MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton94MouseClicked
-
-    private void jButton95MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton95MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton95MouseClicked
-
-    private void jButton95ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton95ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton95ActionPerformed
-
-    private void jButton96MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton96MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton96MouseClicked
-
-    private void jButton97MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton97MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton97MouseClicked
-
-    private void jButton97ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton97ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton97ActionPerformed
-
-    private void jButton98MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton98MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton98MouseClicked
-
-    private void jButton99MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton99MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton99MouseClicked
-
-    private void jButton99ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton99ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton99ActionPerformed
-
-    private void jButton100MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton100MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton100MouseClicked
-
-    private void jButton101MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton101MouseClicked
-        // TODO add your handling code here:
-        PositionClick(evt);
-    }//GEN-LAST:event_jButton101MouseClicked
-
-    private void jButton101ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton101ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton101ActionPerformed
-
-    private void jButton3MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseEntered
-        // TODO add your handling code here:
-        mouseHover(evt);
-    }//GEN-LAST:event_jButton3MouseEntered
-
-    private void jButton2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseEntered
-        // TODO add your handling code here:
-        mouseHover(evt);
-    }//GEN-LAST:event_jButton2MouseEntered
-
-    private void jButton5MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton5MouseEntered
-        // TODO add your handling code here:
-        mouseHover(evt);
-    }//GEN-LAST:event_jButton5MouseEntered
-
-    private void jButton4MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton4MouseEntered
-
-        mouseHover(evt);        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton4MouseEntered
-
-    private void jButton7MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton7MouseEntered
-
-        mouseHover(evt);        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton7MouseEntered
-
-    private void jButton6MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton6MouseEntered
-        mouseHover(evt);        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton6MouseEntered
-
-    private void jButton9MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton9MouseEntered
-        mouseHover(evt);        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton9MouseEntered
-
-    private void jButton8MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton8MouseEntered
-        mouseHover(evt);        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton8MouseEntered
-
-    private void jButton11MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton11MouseEntered
-        mouseHover(evt);        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton11MouseEntered
-
-    private void jButton10MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton10MouseEntered
-        mouseHover(evt);        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton10MouseEntered
-
-    private void jButton31MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton31MouseEntered
-        // TODO add your handling code here:
-        mouseHover(evt);
-    }//GEN-LAST:event_jButton31MouseEntered
-
-    private void jButton21MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton21MouseEntered
-        // TODO add your handling code here:
-        mouseHover(evt);
-    }//GEN-LAST:event_jButton21MouseEntered
-
+    /**
+     * Devuelve las dimensiones totales del Jpanel, incluyendo el espacio del
+     * panel y el espacio del tablero.
+     *
+     * @return Dimensiones totales del panel.
+     */
+    public Dimension getDimension() {
+        return new Dimension(getDimensionCells().width + 203 + Gap, getDimensionCells().height);
+    }
+
+    /**
+     * Devuelve las dimensiones del tablero de celdas.
+     *
+     * @return Dimensiones del tablero de celdas.
+     */
+    public Dimension getDimensionCells() {
+        int r = (ButtonSize * Size) + (Gap * (Size + 1));
+        return new Dimension(r, r);
+    }
+
+    /**
+     * Inicializa las celdas del panel con botones para representar el tablero
+     * de juego.
+     */
+    private void initCells() {
+
+        final String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+            "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+            "U", "V", "W", "X", "Y", "Z"};
+
+        final Dimension sizeButton = new Dimension(ButtonSize, ButtonSize);
+        GridLayout gridLayout = new GridLayout(Size, Size);
+        gridLayout.setHgap(Gap);
+        gridLayout.setVgap(Gap);
+        TablePanel.setLayout(gridLayout);
+        for (int i = 0; i < Size; i++) {
+            for (int j = 0; j < Size; j++) {
+                String cellName = letters[j] + (i + 1);
+                JButton cell = new JButton();
+                cell.setName(cellName);
+                cell.setSize(sizeButton);
+                cell.setMaximumSize(sizeButton);
+                cell.setMinimumSize(sizeButton);
+                cell.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        JButton clickedButton = (JButton) e.getSource();
+                        // Acción a realizar cuando se hace clic en el botón
+                        //System.out.println("Clic en la celda: " + clickedButton.getText());
+                        PositionClick(clickedButton);
+                    }
+                });
+                cell.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+                        JButton enteredButton = (JButton) e.getSource();
+                        // Acción a realizar cuando el mouse entra en el botón
+                        // System.out.println("Mouse sobre la celda: " + enteredButton.getText());
+                        mouseHover(enteredButton.getName());
+                    }
+                });
+                //Agregar a lista JButton
+                buttons.add(cell);
+                cell.setIcon(VOID_CELL);
+                cell.setBorderPainted(false);
+                //Agregar boton al jpanel
+                TablePanel.add(cell);
+            }
+        }
+        //Nuevos tamanos
+        this.setSize(getDimension());
+        System.out.println(getDimension());
+        System.out.println(getDimensionCells());
+        TablePanel.setSize(getDimensionCells());
+        TablePanel.repaint();
+    }
     private void rotateButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rotateButtonMouseClicked
         // TODO add your handling code here:
         changeRotation();
@@ -3385,110 +954,11 @@ public class Tablero extends javax.swing.JPanel {
     private javax.swing.JLabel L_Healtd;
     private javax.swing.JLabel L_Orientation;
     private javax.swing.JLabel L_Size;
+    private javax.swing.JPanel Panel;
+    private javax.swing.JPanel TablePanel;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton10;
-    private javax.swing.JButton jButton100;
-    private javax.swing.JButton jButton101;
-    private javax.swing.JButton jButton11;
-    private javax.swing.JButton jButton12;
-    private javax.swing.JButton jButton13;
-    private javax.swing.JButton jButton14;
-    private javax.swing.JButton jButton15;
-    private javax.swing.JButton jButton16;
-    private javax.swing.JButton jButton17;
-    private javax.swing.JButton jButton18;
-    private javax.swing.JButton jButton19;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton20;
-    private javax.swing.JButton jButton21;
-    private javax.swing.JButton jButton22;
-    private javax.swing.JButton jButton23;
-    private javax.swing.JButton jButton24;
-    private javax.swing.JButton jButton25;
-    private javax.swing.JButton jButton26;
-    private javax.swing.JButton jButton27;
-    private javax.swing.JButton jButton28;
-    private javax.swing.JButton jButton29;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton30;
-    private javax.swing.JButton jButton31;
-    private javax.swing.JButton jButton32;
-    private javax.swing.JButton jButton33;
-    private javax.swing.JButton jButton34;
-    private javax.swing.JButton jButton35;
-    private javax.swing.JButton jButton36;
-    private javax.swing.JButton jButton37;
-    private javax.swing.JButton jButton38;
-    private javax.swing.JButton jButton39;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton40;
-    private javax.swing.JButton jButton41;
-    private javax.swing.JButton jButton42;
-    private javax.swing.JButton jButton43;
-    private javax.swing.JButton jButton44;
-    private javax.swing.JButton jButton45;
-    private javax.swing.JButton jButton46;
-    private javax.swing.JButton jButton47;
-    private javax.swing.JButton jButton48;
-    private javax.swing.JButton jButton49;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton50;
-    private javax.swing.JButton jButton51;
-    private javax.swing.JButton jButton52;
-    private javax.swing.JButton jButton53;
-    private javax.swing.JButton jButton54;
-    private javax.swing.JButton jButton55;
-    private javax.swing.JButton jButton56;
-    private javax.swing.JButton jButton57;
-    private javax.swing.JButton jButton58;
-    private javax.swing.JButton jButton59;
-    private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton60;
-    private javax.swing.JButton jButton61;
-    private javax.swing.JButton jButton62;
-    private javax.swing.JButton jButton63;
-    private javax.swing.JButton jButton64;
-    private javax.swing.JButton jButton65;
-    private javax.swing.JButton jButton66;
-    private javax.swing.JButton jButton67;
-    private javax.swing.JButton jButton68;
-    private javax.swing.JButton jButton69;
-    private javax.swing.JButton jButton7;
-    private javax.swing.JButton jButton70;
-    private javax.swing.JButton jButton71;
-    private javax.swing.JButton jButton72;
-    private javax.swing.JButton jButton73;
-    private javax.swing.JButton jButton74;
-    private javax.swing.JButton jButton75;
-    private javax.swing.JButton jButton76;
-    private javax.swing.JButton jButton77;
-    private javax.swing.JButton jButton78;
-    private javax.swing.JButton jButton79;
-    private javax.swing.JButton jButton8;
-    private javax.swing.JButton jButton80;
-    private javax.swing.JButton jButton81;
-    private javax.swing.JButton jButton82;
-    private javax.swing.JButton jButton83;
-    private javax.swing.JButton jButton84;
-    private javax.swing.JButton jButton85;
-    private javax.swing.JButton jButton86;
-    private javax.swing.JButton jButton87;
-    private javax.swing.JButton jButton88;
-    private javax.swing.JButton jButton89;
-    private javax.swing.JButton jButton9;
-    private javax.swing.JButton jButton90;
-    private javax.swing.JButton jButton91;
-    private javax.swing.JButton jButton92;
-    private javax.swing.JButton jButton93;
-    private javax.swing.JButton jButton94;
-    private javax.swing.JButton jButton95;
-    private javax.swing.JButton jButton96;
-    private javax.swing.JButton jButton97;
-    private javax.swing.JButton jButton98;
-    private javax.swing.JButton jButton99;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JButton rotateButton;
     // End of variables declaration//GEN-END:variables
 }

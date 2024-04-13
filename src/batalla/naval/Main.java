@@ -4,6 +4,8 @@
  */
 package batalla.naval;
 
+import java.awt.Dimension;
+
 /**
  *
  * @author Jose
@@ -13,13 +15,19 @@ public class Main extends javax.swing.JFrame {
     /**
      * Creates new form Main
      */
+    Dimension dimensionTable = null;
+
     public Main() {
         initComponents();
-        Tablero t = new Tablero();
-        TablePlayer.add(t);
-        t.setSize(800, 600);
+        this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        Tablero Table = new Tablero(14);
+        Dimension dimensionTable = Table.getDimension();
+        TablePlayer.setSize(dimensionTable);
+        TablePlayer.add(Table);
+        Table.setSize(dimensionTable);
         TablePlayer.revalidate();
         TablePlayer.repaint();
+        this.dimensionTable = dimensionTable;
     }
 
     /**
@@ -35,10 +43,14 @@ public class Main extends javax.swing.JFrame {
         TablePlayer = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                formComponentResized(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(204, 255, 204));
 
-        TablePlayer.setMaximumSize(new java.awt.Dimension(800, 600));
         TablePlayer.setMinimumSize(new java.awt.Dimension(800, 600));
         TablePlayer.setPreferredSize(new java.awt.Dimension(800, 600));
 
@@ -84,6 +96,14 @@ public class Main extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
+
+        if (dimensionTable != null) {
+            TablePlayer.setSize(dimensionTable);
+            TablePlayer.repaint();
+        }
+    }//GEN-LAST:event_formComponentResized
 
     /**
      * @param args the command line arguments

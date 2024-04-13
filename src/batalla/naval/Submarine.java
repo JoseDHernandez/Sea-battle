@@ -16,7 +16,7 @@ public class Submarine extends Power implements Impactable, Rotable {
 
     private boolean orientation;//true = horizontal , false = vertical
     private int rotation;
-    private List<String> torpedoes;
+    private List<String> torpedoes;// Posiciones de los torpedos
     private int rotationTorpedoes0;
     private int rotationTorpedoes1;
 
@@ -125,20 +125,16 @@ public class Submarine extends Power implements Impactable, Rotable {
 
     private double rotationDegrees(int rot) {
         double r;
-        switch (rot) {
-            case 1:
-                r = Math.PI / 2;
-                break;
-            case 2:
-                r = Math.PI;
-                break;
-            case 3:
-                r = (3 * Math.PI) / 2;
-                break;
-            default:
-                r = 0.0;
-                break;
-        }
+        r = switch (rot) {
+            case 1 ->
+                Math.PI / 2;
+            case 2 ->
+                Math.PI;
+            case 3 ->
+                (3 * Math.PI) / 2;
+            default ->
+                0.0;
+        };
         return r;
     }
 
