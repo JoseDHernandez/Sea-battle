@@ -22,6 +22,7 @@ public class Main extends javax.swing.JFrame {
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
         Tablero Table = new Tablero(14);
         Dimension dimensionTable = Table.getDimension();
+        System.out.println(dimensionTable);
         TablePlayer.setSize(dimensionTable);
         TablePlayer.add(Table);
         Table.setSize(dimensionTable);
@@ -51,14 +52,20 @@ public class Main extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(204, 255, 204));
 
+        TablePlayer.setBackground(new java.awt.Color(255, 102, 102));
         TablePlayer.setMinimumSize(new java.awt.Dimension(800, 600));
         TablePlayer.setPreferredSize(new java.awt.Dimension(800, 600));
+        TablePlayer.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                TablePlayerComponentResized(evt);
+            }
+        });
 
         javax.swing.GroupLayout TablePlayerLayout = new javax.swing.GroupLayout(TablePlayer);
         TablePlayer.setLayout(TablePlayerLayout);
         TablePlayerLayout.setHorizontalGroup(
             TablePlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 800, Short.MAX_VALUE)
+            .addGap(0, 844, Short.MAX_VALUE)
         );
         TablePlayerLayout.setVerticalGroup(
             TablePlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -71,14 +78,14 @@ public class Main extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(TablePlayer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(342, Short.MAX_VALUE))
+                .addComponent(TablePlayer, javax.swing.GroupLayout.PREFERRED_SIZE, 844, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(TablePlayer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 12, Short.MAX_VALUE))
+                .addComponent(TablePlayer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(12, 12, 12))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -86,8 +93,8 @@ public class Main extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(0, 0, 0))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -97,13 +104,20 @@ public class Main extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
-
+    private void reSize() {
         if (dimensionTable != null) {
             TablePlayer.setSize(dimensionTable);
             TablePlayer.repaint();
         }
+    }
+    private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
+        reSize();
+
     }//GEN-LAST:event_formComponentResized
+
+    private void TablePlayerComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_TablePlayerComponentResized
+        reSize();
+    }//GEN-LAST:event_TablePlayerComponentResized
 
     /**
      * @param args the command line arguments

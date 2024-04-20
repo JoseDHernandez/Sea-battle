@@ -12,6 +12,10 @@ import java.util.List;
  */
 public class Mine extends Power implements Impactable {
 
+    public Mine() {
+        super();
+    }
+
     public Mine(String coord) {
         super(coord);
     }

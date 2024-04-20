@@ -43,13 +43,20 @@ public class Player implements Cell {
         typeAttack = true;
     }
 
+    public Player(String name) {
+        this.name = name;
+        cells = new ArrayList<>();
+        boats = new ArrayList<>();
+        typeAttack = true;
+    }
+
     /**
      * Establece el tipo de ataque.
      *
      * @param type el tipo de ataque a establecer. {@code true} para ataque
      * normal, {@code false} para PowerUp.
      */
-    public void setTypeActtack(boolean type) {
+    public void setTypeAttack(boolean type) {
         typeAttack = type;
     }
 
@@ -59,7 +66,7 @@ public class Player implements Cell {
      * @return {@code true} si el tipo de ataque es normal, {@code false} si es
      * PowerUp.
      */
-    public boolean getTypeActtack() {
+    public boolean getTypeAttack() {
         return typeAttack;
     }
 
@@ -96,6 +103,10 @@ public class Player implements Cell {
         return cells;
     }
 
+    public void clearCells() {
+        cells.clear();
+    }
+
     /**
      * Agrega un barco a la lista de barcos del jugador.
      *
@@ -115,5 +126,56 @@ public class Player implements Cell {
      */
     public List<Object> getBoatList() {
         return boats;
+    }
+
+    public void clearBoatsList() {
+        boats.clear();
+    }
+
+    public void setListOfBoats(List<Object> list) {
+        boats.addAll(list);
+    }
+
+    /**
+     * Retorna el id de la entidad y añade la coordenada en caso de ser nueva
+     */
+    public int impactVerification(String coord) {
+        if (boats.isEmpty()) {
+            throw new NullPointerException("El Jugador: " + name + " no tiene botes disponibles");
+        } else if (cells.contains(coord)) {
+            //Celda ya jugada
+            return -1;
+        }
+        for (int i = 1; i < boats.size(); i += 2) {
+            if (boats.get(i) instanceof Mine) {
+                //Retorna -3 indicando que es una mina
+                return -3;
+            } else if (((Boat) boats.get(i)).getCoords().contains(coord)) {
+                cells.add(coord);
+                return i - 1;
+            }
+        }
+        //Celda sin barco
+        cells.add(coord);
+        return -2;
+    }
+
+    public Boat getBoat(int id) {
+        id = id + 1;
+        Boat temp = (Boat) boats.get(id);
+        int actualLife = temp.getLife();
+        int afterLife = actualLife - 1;
+        if (afterLife >= 0) {
+            temp.setLife(afterLife);
+            boats.set(id, temp);
+            return temp;
+        }
+        //Restableco id para poder borrar ID y boat
+        id = id - 1;
+        //Remuevo id
+        boats.remove(id);
+        //Remuevo Boat (mismo index porque ya no existe el Id)
+        boats.remove(id);
+        return null;
     }
 }

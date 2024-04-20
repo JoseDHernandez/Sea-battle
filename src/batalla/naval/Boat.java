@@ -27,6 +27,14 @@ public class Boat implements Rotable {
         rotation = 1;
     }
 
+    public Boat(int size, List<String> coords) {
+        this.life = size;
+        this.size = size;
+        this.coords = coords;
+        this.orientation = true;
+        rotation = 1;
+    }
+
     @Override
     public void setRotation(int rotation) {
         this.rotation = rotation;

@@ -4,32 +4,22 @@
  */
 package batalla.naval;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
  * @author Jose
  */
-public class Locator extends Power implements Impactable {
+public class Locator extends Power {
 
-    @Override
-    public void recibeImpact(String coord, Boat boat) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<String> findMatchCoords(String atackCoords, List<String> targetCoords) {
+        List<String> temp = new ArrayList<>();
+        for (String coord : targetCoords) {
+            if (atackCoords.equals(coord)) {
+                temp.add(coord);
+            }
+        }
+        return temp;
     }
-
-    @Override
-    public boolean verifyImpact(String atackCoord, String targetCoord) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public boolean verifyImpact(List<String> atackCoords, List<String> targetCoords) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public String getTextPosition() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
 }
