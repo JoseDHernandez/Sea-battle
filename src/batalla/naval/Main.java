@@ -1,34 +1,37 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package batalla.naval;
 
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import javax.swing.JPanel;
 
-/**
- *
- * @author Jose
- */
 public class Main extends javax.swing.JFrame {
 
     /**
      * Creates new form Main
      */
     Dimension dimensionTable = null;
-
+    protected JPanel TablePlayer = new JPanel();
+    //Variables de opciones
+    public int Boat_One = 4;
+    public int Boat_Two = 3;
+    public int Boat_Three = 3;
+    
     public Main() {
         initComponents();
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
-        Tablero Table = new Tablero(14);
-        Dimension dimensionTable = Table.getDimension();
-        System.out.println(dimensionTable);
-        TablePlayer.setSize(dimensionTable);
-        TablePlayer.add(Table);
-        Table.setSize(dimensionTable);
-        TablePlayer.revalidate();
-        TablePlayer.repaint();
-        this.dimensionTable = dimensionTable;
+        //Menu
+        Panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.CENTER;
+
+        // Agregar el panel hijo al panel principal
+        PanelMenu.setSize(600, 840);
+        Panel.add(PanelMenu, gbc);
     }
 
     /**
@@ -40,8 +43,16 @@ public class Main extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        TablePlayer = new javax.swing.JPanel();
+        Panel = new javax.swing.JPanel();
+        PanelMenu = new javax.swing.JPanel();
+        Menu = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        ButtonPlay = new javax.swing.JButton();
+        ButtonOption = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jSeparator2 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -50,42 +61,117 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
-        jPanel1.setBackground(new java.awt.Color(204, 255, 204));
+        Panel.setBackground(new java.awt.Color(255, 255, 255));
 
-        TablePlayer.setBackground(new java.awt.Color(255, 102, 102));
-        TablePlayer.setMinimumSize(new java.awt.Dimension(800, 600));
-        TablePlayer.setPreferredSize(new java.awt.Dimension(800, 600));
-        TablePlayer.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                TablePlayerComponentResized(evt);
+        PanelMenu.setBackground(new java.awt.Color(255, 204, 204));
+        PanelMenu.setMinimumSize(new java.awt.Dimension(600, 700));
+        PanelMenu.setPreferredSize(new java.awt.Dimension(600, 700));
+
+        Menu.setBackground(new java.awt.Color(255, 255, 255));
+        Menu.setMinimumSize(new java.awt.Dimension(600, 700));
+        Menu.setPreferredSize(new java.awt.Dimension(600, 700));
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Logo.png"))); // NOI18N
+
+        ButtonPlay.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Play.png"))); // NOI18N
+        ButtonPlay.setBorder(null);
+        ButtonPlay.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ButtonPlayMouseClicked(evt);
             }
         });
 
-        javax.swing.GroupLayout TablePlayerLayout = new javax.swing.GroupLayout(TablePlayer);
-        TablePlayer.setLayout(TablePlayerLayout);
-        TablePlayerLayout.setHorizontalGroup(
-            TablePlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 844, Short.MAX_VALUE)
+        ButtonOption.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Options.png"))); // NOI18N
+        ButtonOption.setBorder(null);
+        ButtonOption.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ButtonOptionMouseClicked(evt);
+            }
+        });
+
+        jLabel2.setText("Desarrollado por: José David Hernández Hortúa ");
+
+        jLabel4.setText("Código disponible en git hub");
+
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/CC.png"))); // NOI18N
+
+        javax.swing.GroupLayout MenuLayout = new javax.swing.GroupLayout(Menu);
+        Menu.setLayout(MenuLayout);
+        MenuLayout.setHorizontalGroup(
+            MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(MenuLayout.createSequentialGroup()
+                .addGap(226, 226, 226)
+                .addComponent(ButtonOption, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(MenuLayout.createSequentialGroup()
+                .addGroup(MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(MenuLayout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addGroup(MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jSeparator2)
+                            .addGroup(MenuLayout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addGroup(MenuLayout.createSequentialGroup()
+                        .addGap(24, 24, 24)
+                        .addComponent(jLabel1)
+                        .addGap(0, 11, Short.MAX_VALUE)))
+                .addGap(16, 16, 16))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, MenuLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(ButtonPlay, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(185, 185, 185))
         );
-        TablePlayerLayout.setVerticalGroup(
-            TablePlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 600, Short.MAX_VALUE)
+        MenuLayout.setVerticalGroup(
+            MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(MenuLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(121, 121, 121)
+                .addComponent(ButtonPlay, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(164, 164, 164)
+                .addComponent(ButtonOption, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 76, Short.MAX_VALUE)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel3)
+                    .addGroup(MenuLayout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel4)))
+                .addGap(16, 16, 16))
         );
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(TablePlayer, javax.swing.GroupLayout.PREFERRED_SIZE, 844, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        javax.swing.GroupLayout PanelMenuLayout = new javax.swing.GroupLayout(PanelMenu);
+        PanelMenu.setLayout(PanelMenuLayout);
+        PanelMenuLayout.setHorizontalGroup(
+            PanelMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(Menu, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(TablePlayer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(12, 12, 12))
+        PanelMenuLayout.setVerticalGroup(
+            PanelMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(Menu, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout PanelLayout = new javax.swing.GroupLayout(Panel);
+        Panel.setLayout(PanelLayout);
+        PanelLayout.setHorizontalGroup(
+            PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelLayout.createSequentialGroup()
+                .addContainerGap(277, Short.MAX_VALUE)
+                .addComponent(PanelMenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(165, 165, 165))
+        );
+        PanelLayout.setVerticalGroup(
+            PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(PanelMenu, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -93,12 +179,12 @@ public class Main extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(0, 0, 0))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -112,12 +198,34 @@ public class Main extends javax.swing.JFrame {
     }
     private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
         reSize();
-
+        
     }//GEN-LAST:event_formComponentResized
-
-    private void TablePlayerComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_TablePlayerComponentResized
-        reSize();
-    }//GEN-LAST:event_TablePlayerComponentResized
+    
+    private void ButtonPlayMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonPlayMouseClicked
+        // TODO add your handling code here:
+        Tablero Table = new Tablero(14);
+        Dimension dimensionTable = Table.getDimension();
+        Panel.remove(PanelMenu);
+        Panel.add(TablePlayer);
+        Panel.repaint();
+        TablePlayer.setSize(dimensionTable);
+        TablePlayer.add(Table);
+        Table.setSize(dimensionTable);
+        TablePlayer.revalidate();
+        TablePlayer.repaint();
+        this.dimensionTable = dimensionTable;
+    }//GEN-LAST:event_ButtonPlayMouseClicked
+    
+    private void ButtonOptionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonOptionMouseClicked
+        
+        Menu.setVisible(false);
+        Options op = new Options(this);
+        
+        PanelMenu.add(op);
+        op.setSize(600, 700);
+        PanelMenu.revalidate();
+        PanelMenu.repaint();
+    }//GEN-LAST:event_ButtonOptionMouseClicked
 
     /**
      * @param args the command line arguments
@@ -155,7 +263,15 @@ public class Main extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel TablePlayer;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JButton ButtonOption;
+    private javax.swing.JButton ButtonPlay;
+    public javax.swing.JPanel Menu;
+    private javax.swing.JPanel Panel;
+    private javax.swing.JPanel PanelMenu;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JSeparator jSeparator2;
     // End of variables declaration//GEN-END:variables
 }

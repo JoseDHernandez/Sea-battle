@@ -1,23 +1,22 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package batalla.naval;
 
+import Classes.Player;
+import Classes.getImage;
+import Classes.getRandom;
+import Entitys.Boat;
+import Entitys.Locator;
+import Entitys.Mine;
+import Entitys.Power;
+import Entitys.Submarine;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -32,13 +31,14 @@ import javax.swing.JButton;
 public class Tablero extends javax.swing.JPanel {
 
     //Dificultad
-    private int DIFICULTY; // 0 = Normal, 1 = Medio, 2=Dificil
+    private int DIFFICULTY; // 0 = Normal, 1 = Medio, 2=Dificil
     // Tamaño del tablero y espaciado entre celdas
     private int Size;
     private final int Gap = 1;
     private final int ButtonSize = 50;
     private char LAST_LETTER; // Última letra posible en el tablero
-
+    private getImage img = new getImage(); //Clase para oobtener los iconos
+    private getRandom random = new getRandom();
     // Indicadores de jugador y estado de construcción
     private boolean isPlayer; // Si es el jugador o enemigo
     private boolean inBuild; // Indica si se está construyendo el tablero
@@ -81,13 +81,13 @@ public class Tablero extends javax.swing.JPanel {
      */
     public Tablero(int Size) {
         // Inicialización de variables
-        this.DIFICULTY = 0;
+        this.DIFFICULTY = 0;
         this.Size = Size; // Tamaño del tablero
         this.LAST_LETTER = (char) ('A' + (Size - 1)); // Última letra en el tablero según el tamaño
         this.isPlayer = true; // Indica si es el turno del jugador
         this.inBuild = true; // Indica si se está construyendo el tablero
         this.buttons = new ArrayList<>(); // Lista de botones y elementos gráficos del tablero
-
+        this.random = new getRandom(Size);
         // Inicialización de jugadores y elementos del juego
         this.player = new Player(); // Jugador actual
         player.setTypeAttack(true); // Tipo de ataque del jugador
@@ -95,6 +95,8 @@ public class Tablero extends javax.swing.JPanel {
         this.enemy = new Player("Bot"); // Jugador enemigo
         this.actualPowerUp = null; // PowerUp actualmente seleccionado
         this.entityList = Arrays.asList(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 0, 0, 0); //Entidades disponibles
+
+        this.img = new getImage(isPlayer, inBuild, player, actualBoat, actualPowerUp);//Clase getImage
         // Inicialización de componentes gráficos y de juego
         initComponents(); // Inicializa los componentes gráficos del tablero
         initCells(); // Inicializa las celdas del tablero
@@ -121,6 +123,9 @@ public class Tablero extends javax.swing.JPanel {
         L_Orientation = new javax.swing.JLabel();
         rotateButton = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JSeparator();
+        jLabel2 = new javax.swing.JLabel();
         TablePanel = new javax.swing.JPanel();
 
         jButton1.setText("jButton1");
@@ -132,7 +137,7 @@ public class Tablero extends javax.swing.JPanel {
 
         jLabel1.setText("Barco actual:");
 
-        ImageBoat.setIcon(new ImageIcon(urlOfImage("0")));
+        ImageBoat.setIcon(new ImageIcon(getImage.urlOfImage("0")));
         ImageBoat.setDebugGraphicsOptions(javax.swing.DebugGraphics.NONE_OPTION);
         ImageBoat.setIconTextGap(0);
         ImageBoat.setMaximumSize(new java.awt.Dimension(150, 150));
@@ -151,13 +156,27 @@ public class Tablero extends javax.swing.JPanel {
                 rotateButtonMouseClicked(evt);
             }
         });
+        rotateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rotateButtonActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("Posicionar");
+        jButton2.setText("Posiciones aleatorias");
         jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jButton2MouseClicked(evt);
             }
         });
+
+        jButton3.setText("Limpiar tablero");
+        jButton3.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jButton3KeyPressed(evt);
+            }
+        });
+
+        jLabel2.setText("Herramientas:");
 
         javax.swing.GroupLayout PanelLayout = new javax.swing.GroupLayout(Panel);
         Panel.setLayout(PanelLayout);
@@ -173,15 +192,26 @@ public class Tablero extends javax.swing.JPanel {
                             .addComponent(L_Orientation)))
                     .addGroup(PanelLayout.createSequentialGroup()
                         .addGap(17, 17, 17)
-                        .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(ImageBoat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(rotateButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)))))
+                        .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(ImageBoat, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(rotateButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap(29, Short.MAX_VALUE))
             .addGroup(PanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
+                .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(PanelLayout.createSequentialGroup()
+                        .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(PanelLayout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel2))
+                            .addComponent(jLabel1))
+                        .addGap(0, 0, Short.MAX_VALUE))))
+            .addGroup(PanelLayout.createSequentialGroup()
+                .addGap(28, 28, 28)
+                .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jButton2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         PanelLayout.setVerticalGroup(
@@ -200,8 +230,14 @@ public class Tablero extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(rotateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(8, 8, 8)
+                .addComponent(jLabel2)
+                .addGap(18, 18, 18)
                 .addComponent(jButton2)
-                .addContainerGap(205, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jButton3)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         TablePanel.setBackground(new java.awt.Color(204, 255, 255));
@@ -215,7 +251,7 @@ public class Tablero extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(Panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(TablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, 596, Short.MAX_VALUE)
+                .addComponent(TablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, 642, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -223,20 +259,11 @@ public class Tablero extends javax.swing.JPanel {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(TablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(TablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, 588, Short.MAX_VALUE)
                     .addComponent(Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-    /**
-     * Metodo para obtener la ruta de una imagen segun el nombre
-     *
-     * @param name Nombre de la imagen
-     * @return ruta absoluta de la imagen
-     */
-    private String urlOfImage(String name) {
-        return System.getProperty("user.dir") + "\\src\\img\\" + name + ".png";
-    }
 
     /**
      * Funcion de animacion y verificacion de impacto de los torpedos de un
@@ -514,164 +541,6 @@ public class Tablero extends javax.swing.JPanel {
     }
 
     /**
-     * Rota la imagen especificada por un ángulo dado.
-     *
-     * @param icon La imagen a rotar.
-     * @param angle El ángulo de rotación en radianes.
-     * @return Una nueva imagen rotada.
-     */
-    public ImageIcon rotateImage(ImageIcon icon, double angle) {
-        Image image = icon.getImage();
-        int w = image.getWidth(null);
-        int h = image.getHeight(null);
-
-        BufferedImage rotatedImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = rotatedImage.createGraphics();
-
-        // Rotar la imagen 
-        AffineTransform transform = new AffineTransform();
-        transform.rotate(angle, w / 2, h / 2);
-        g2d.setTransform(transform);
-        g2d.drawImage(image, 0, 0, null);
-
-        g2d.dispose();
-
-        return new ImageIcon(rotatedImage);
-    }
-
-    /**
-     * Obtiene un ImageIcon para un tipo específico de celda en función de
-     * varios factores (tipo de barco, power up, etc).
-     *
-     * @param type El tipo de celda.
-     * @param index El índice de la longitud de la entidad o parte espeficica
-     * (10 para celda impactada, 0 - 2 Barcos y submarino, 8 y 9 Torpedos, 0 - 8
-     * Localizador con 4 reservador para GPS).
-     * @return Un ImageIcon para la celda especificada.
-     */
-    private ImageIcon getIcon(boolean type, int index) {
-
-        StringBuilder typeOfImage = new StringBuilder();
-        String url = "";
-        //Imagen de impacto
-        if (index == 10) {
-            return new ImageIcon(urlOfImage("ZX"));
-        }
-        //Imagenes del bote actual
-        if (index > 10 && index < 15) {
-            //Le resto 11 al index para obtener el numero de imagen
-            return rotateImage(new ImageIcon(urlOfImage((index - 11) + "")), actualBoat == null ? 0.0 : actualBoat.getRotationDegrees());
-        }
-        if (inBuild && player.getTypeAttack()) {
-            //Validar si es un mina y powerUp esta activo
-
-            //Obtener inicial
-            String iniLetter = "";
-            if (type && isPlayer) {
-                iniLetter = "P";
-            } else if (type && !isPlayer) {
-                iniLetter = "X";
-            }
-            typeOfImage.append(iniLetter);
-            //Siguientes letras
-            typeOfImage.append(actualBoat.getSize() == 1 ? "B" : "H");
-            url = typeOfImage.toString();
-            int rotation = actualBoat.getRotation();
-            switch (actualBoat.getSize()) {
-                case 3 -> {
-                    if (rotation >= 2) {
-                        switch (index) {
-                            case 0 ->
-                                url += "C";
-                            case 1 ->
-                                url += "B";
-                            default ->
-                                url += "A";
-                        }
-                    } else {
-                        switch (index) {
-                            case 0 ->
-                                url += "A";
-                            case 1 ->
-                                url += "B";
-                            default ->
-                                url += "C";
-                        }
-                    }
-                }
-                case 2 -> {
-
-                    if (rotation >= 2) {
-                        if (index == 0) {
-                            url += "C";
-                        } else {
-                            url += "A";
-                        }
-                    } else {
-                        if (index == 0) {
-                            url += "A";
-                        } else {
-                            url += "C";
-                        }
-                    }
-                }
-
-            }
-            return rotateImage(new ImageIcon(urlOfImage(url)), actualBoat.getRotationDegrees());
-
-        } else if (inBuild && player.getTypeAttack() == false) {
-            return new ImageIcon(urlOfImage("Mine"));
-        } else {
-            if (actualPowerUp instanceof Locator) {
-                /*
-                0 1 2
-                3 [4] 5
-                6 7 8
-                 */
-                url = "Locator";
-                if (index != 4) {
-                    url += "Cell";
-                }
-                return new ImageIcon(urlOfImage(url));
-            } else if (actualPowerUp instanceof Submarine) {
-                //Submarine
-                url += (index < 3 ? "S" : "");
-                if (((Submarine) actualPowerUp).getRotation() >= 2) {
-                    switch (index) {
-                        case 0 ->
-                            url += "C";
-                        case 1 ->
-                            url += "B";
-                        case 2 ->
-                            url += "A";
-                        default ->
-                            url += "Torpedo";
-                    }
-
-                } else {
-                    switch (index) {
-                        case 0 ->
-                            url += "A";
-                        case 1 ->
-                            url += "B";
-                        case 2 ->
-                            url += "C";
-                        default ->
-                            url += "Torpedo";
-                    }
-                }
-            }
-            if (index == 8) {
-                return rotateImage(new ImageIcon(urlOfImage(url)), ((Submarine) actualPowerUp).getRotationDegreesTorpedoes()[0]);
-            } else if (index == 9) {
-                return rotateImage(new ImageIcon(urlOfImage(url)), ((Submarine) actualPowerUp).getRotationDegreesTorpedoes()[1]);
-            }
-            //Retorna submarine
-            return rotateImage(new ImageIcon(urlOfImage(url)), ((Submarine) actualPowerUp).getRotationDegrees());
-        }
-    }
-
-    /**
      * Este método se encarga de pintar las celdas del tablero según diferentes
      * condiciones, como el tipo de estado (ataque o jugada), la presencia de un
      * PowerUp activo y el tipo de PowerUp.
@@ -683,65 +552,13 @@ public class Tablero extends javax.swing.JPanel {
     private void paintCells(boolean type, List<String> cells) {
         //Limpiar celdas
         clearGhostCells();
-        //Pintar nuevas celdas
-        if (inBuild) {
-
-            if (player.getTypeAttack()) {
-                //Boats
-                switch (actualBoat.getSize()) {
-                    case 3:
-                        getCell(cells.get(0)).setIcon(getIcon(type, 0));
-                        getCell(cells.get(1)).setIcon(getIcon(type, 1));
-                        getCell(cells.get(2)).setIcon(getIcon(type, 2));
-                        break;
-                    case 2:
-                        getCell(cells.get(0)).setIcon(getIcon(type, 0));
-                        getCell(cells.get(1)).setIcon(getIcon(type, 1));
-                        break;
-                    case 1:
-                        getCell(cells.get(0)).setIcon(getIcon(type, 0));
-                        break;
-                }
-            } else {
-                //Mine
-                getCell(cells.get(0)).setIcon(getIcon(type, 0));
-
-            }
-        } else if (player.getTypeAttack() == false) {
-
-            if (actualPowerUp instanceof Locator) {
-                /*
-                0 1 2
-                3 [4] 5
-                6 7 8
-                 */
-                for (int i = 0; i < cells.size(); i++) {
-                    getCell(cells.get(i)).setIcon(getIcon(type, i));
-                }
-
-            } else if (actualPowerUp instanceof Submarine) {
-                //Torpedo
-                if (cells.size() == 2) {
-                    Submarine sub = (Submarine) actualPowerUp;
-                    if (!sub.getTorpedoes().isEmpty()) {
-                        //Celdas antiguas
-                        getCell(sub.getTorpedoes().get(0)).setIcon(getIcon(type, 8));
-                        getCell(sub.getTorpedoes().get(1)).setIcon(getIcon(type, 8));
-                    }
-                    getCell(cells.get(0)).setIcon(getIcon(type, 8));
-                    getCell(cells.get(1)).setIcon(getIcon(type, 9));
-                } else {
-                    //Submarino
-                    getCell(cells.get(0)).setIcon(getIcon(type, 0));
-                    getCell(cells.get(1)).setIcon(getIcon(type, 1));
-                    getCell(cells.get(2)).setIcon(getIcon(type, 2));
-                }
-            } else {
-                //Celda jugada
-                getCell(cells.get(0)).setIcon(getIcon(type, 10));
-            }
+        //Readigno valores de getImage
+        img.resetAttributes(isPlayer, inBuild, player, actualBoat, actualPowerUp);
+        //Pintar nuevas celda
+        List<ImageIcon> listImages = img.getListIcons(type, cells);
+        for (int i = 0; i < listImages.size(); i++) {
+            getCell(cells.get(i)).setIcon(listImages.get(i));
         }
-
         //Cambiar cells a ghost cells
         if (!type) {
             ghostCells = cells;
@@ -910,7 +727,9 @@ public class Tablero extends javax.swing.JPanel {
                 case 3 ->
                     index = 14;
             }
-            ImageBoat.setIcon(getIcon(true, index));
+            //Readigno valores de getImage
+            img.resetAttributes(isPlayer, inBuild, player, actualBoat, actualPowerUp);
+            ImageBoat.setIcon(img.getIcon(true, index));
             L_Healtd.setText("Vida: " + actualBoat.getLife());
             String orient;
             orient = switch (actualBoat.getRotation()) {
@@ -926,11 +745,17 @@ public class Tablero extends javax.swing.JPanel {
             L_Orientation.setText("Orientación: " + orient);
             L_Size.setText("Tamaño: " + actualBoat.getSize());
         } else {
-            ImageBoat.setIcon(new ImageIcon(urlOfImage("0")));
+            ImageBoat.setIcon(new ImageIcon(getImage.urlOfImage("0")));
             L_Healtd.setText("Vida: ");
             L_Orientation.setText("Orientación: ");
             L_Size.setText("Tamaño: ");
         }
+    }
+
+    private void clearEnetitysOfPlayer(Player tempPlayer) {
+        clearAllCells();
+        tempPlayer.clearCells();
+        tempPlayer.clearBoatsList();
     }
 
     /**
@@ -942,9 +767,7 @@ public class Tablero extends javax.swing.JPanel {
      * barcos.
      */
     private void generateCoordsOfBoats(Player tempPlayer) {
-        clearAllCells();
-        tempPlayer.clearCells();
-        tempPlayer.clearBoatsList();
+        clearEnetitysOfPlayer(tempPlayer);
         Boat boat = new Boat();
         for (int type : entityList) {
             actualBoat = null;
@@ -952,14 +775,14 @@ public class Tablero extends javax.swing.JPanel {
             List<String> coordsList = new ArrayList<>();
             //Crea barco
             boat = new Boat(type);
-            int rotation = getRandomNumber(3);
+            int rotation = random.getRandomNumber(3);
             boat.setRotation(rotation);
             boat.setOrientation((rotation == 1 || rotation == 3));
             actualBoat = boat;
             //Generar coordenadas
             boolean borders; //Resultado de si esta dentro o fuera de los limites
             do {
-                coord = getRandomCoords(tempPlayer);
+                coord = random.getRandomCoords(tempPlayer);
                 coordsList = coordToCells(coord);
                 borders = (!borderRight.contains(coord) && !borderTop.contains(coord) && !borderLeft.contains(coord) && !borderButton.contains(coord));
 
@@ -1031,65 +854,6 @@ public class Tablero extends javax.swing.JPanel {
     }
 
     /**
-     * Genera un número entero aleatorio dentro del rango [min, max].
-     *
-     * @param min El valor mínimo del rango.
-     * @param max El valor máximo del rango.
-     * @return Un número entero aleatorio dentro del rango especificado.
-     */
-    private int getRandomNumber(int min, int max) {
-        Random rand = new Random();
-        return rand.nextInt(max - min + 1) + min;
-    }
-
-    /**
-     * Genera un número entero aleatorio dentro del rango [0, max].
-     *
-     * @param max El valor máximo del rango.
-     * @return Un número entero aleatorio dentro del rango especificado.
-     */
-    private int getRandomNumber(int max) {
-        return getRandomNumber(0, max);
-    }
-
-    /**
-     * Este metodo retorna una coordenada aleatoria no usada
-     *
-     * @param attackPlayer Objeto Player del jugador atacante
-     * @param targetPlayer Objeto Player del jugador al que se va a atacar
-     * @return Coordenada aleatoria, en caso de que todas las coordenadas fueron
-     * usadas se retorna {@code null}
-     */
-    private String getRandomCoords(Player attackPlayer, Player targetPlayer) {
-        if (attackPlayer.getCells().size() == (Size * Size)) {
-            return null;
-        }
-        String coord = "";
-        do {
-            coord = getRandomCoords(attackPlayer);
-        } while (targetPlayer.impactVerification(coord) == -1);
-        return coord;
-    }
-
-    /**
-     * Genera una coordenada aleatorias para el jugador especificado,
-     * asegurándose de que no se hayan utilizado previamente.
-     *
-     * @param tempPlayer El jugador para el cual se generan las coordenadas.
-     * @return Las coordenadas aleatorias generadas para el jugador.
-     */
-    private String getRandomCoords(Player tempPlayer) {
-        StringBuilder coord = new StringBuilder();
-
-        do {
-            coord = new StringBuilder();
-            char letter = (char) getRandomNumber((int) 'A', (int) LAST_LETTER);
-            coord.append(letter).append(getRandomNumber(1, Size));
-        } while (tempPlayer.getCells().contains(coord.toString()));
-        return coord.toString();
-    }
-
-    /**
      * Metodo de dibujar impacto, registrando la coordenada usada
      *
      * @param boat Objeto barco a editar
@@ -1109,7 +873,9 @@ public class Tablero extends javax.swing.JPanel {
         //Registrar celda jugada en el jugadro actual
         tempPlayer.addCell(coord);
         actualBoat = boat;
-        getCell(coord).setIcon(getIcon(true, index));
+        //Readigno valores de getImage
+        img.resetAttributes(isPlayer, inBuild, player, actualBoat, actualPowerUp);
+        getCell(coord).setIcon(img.getIcon(true, index));
         actualBoat = null;
     }
 
@@ -1138,7 +904,7 @@ public class Tablero extends javax.swing.JPanel {
         StringBuilder coord = new StringBuilder();
         int idBoat = -1;
         actualPowerUp = null;
-        if (!priorityCellsEnemy.isEmpty() && DIFICULTY == 2) {
+        if (!priorityCellsEnemy.isEmpty() && DIFFICULTY == 2) {
             idBoat = player.impactVerification(priorityCellsEnemy.getFirst());
             priorityCellsEnemy.removeFirst();
             if (idBoat >= 0) {
@@ -1148,9 +914,9 @@ public class Tablero extends javax.swing.JPanel {
         else if (!enemy.getCells().isEmpty()) {
             //Reusar validacion de locator para validar limites para posible ataque
             actualPowerUp = new Locator();
-            coord.append(enemy.getCells().get(getRandomNumber(enemy.getCells().size())));
+            coord.append(enemy.getCells().get(random.getRandomNumber(enemy.getCells().size())));
             //Bucar un bote directamente
-            if (DIFICULTY == 2 && getRandomNumber(10) > 3) {
+            if (DIFFICULTY == 2 && random.getRandomNumber(10) > 3) {
                 //Dejar solo minas
                 copyOfEntityList.addAll(entityList);
                 copyOfEntityList.removeIf(element -> element > 0);
@@ -1165,15 +931,15 @@ public class Tablero extends javax.swing.JPanel {
             else if (validateCellPosition(coord.toString())) {
                 List<String> coords = coordToCells(coord.toString());
                 //Dificultad normal
-                if (DIFICULTY == 0) {
-                    idBoat = player.impactVerification(coords.get(getRandomNumber(coords.size())));
+                if (DIFFICULTY == 0) {
+                    idBoat = player.impactVerification(coords.get(random.getRandomNumber(coords.size())));
                 } else {
 
                     //Variable de dificultad aletoria
-                    int dificulty = DIFICULTY == 1 ? getRandomNumber(3) : getRandomNumber(5, coords.size());
+                    int dificulty = DIFFICULTY == 1 ? random.getRandomNumber(3) : random.getRandomNumber(5, coords.size());
                     for (int i = 0; i < dificulty; i++) {
                         idBoat = player.impactVerification(coords.get(i));
-                        if (DIFICULTY == 2) {
+                        if (DIFFICULTY == 2) {
                             //El que perdona murio en la cruz
                             if (idBoat >= 0) {
                                 Boat boat = player.getBoat(idBoat);
@@ -1193,7 +959,7 @@ public class Tablero extends javax.swing.JPanel {
                         enemyActtack();
                     } else {
                         //Generar coodenada aleatoria
-                        String coordString = getRandomCoords(enemy, player);
+                        String coordString = random.getRandomCoords(enemy, player);
                         if (!coordString.isEmpty()) {
                             idBoat = player.impactVerification(coordString);
                         }
@@ -1202,7 +968,7 @@ public class Tablero extends javax.swing.JPanel {
 
             } else {
                 //Generar coodenada aleatoria
-                String coordString = getRandomCoords(enemy, player);
+                String coordString = random.getRandomCoords(enemy, player);
                 if (!coordString.isEmpty()) {
                     idBoat = player.impactVerification(coordString);
                 }
@@ -1210,7 +976,7 @@ public class Tablero extends javax.swing.JPanel {
             actualPowerUp = null;
         } else {
             //Generar primera coordenada aleatoria
-            idBoat = player.impactVerification(getRandomCoords(enemy, player));
+            idBoat = player.impactVerification(random.getRandomCoords(enemy, player));
         }
         //Validar si impacto un barco o no
         if (idBoat >= 0) {
@@ -1219,7 +985,9 @@ public class Tablero extends javax.swing.JPanel {
                 drawImpact(player.getBoat(idBoat), coord.toString(), enemy);
             }
         } else if (idBoat == -2) {
-            getCell(coord.toString()).setIcon(getIcon(true, 10));
+            //Readigno valores de getImage
+            img.resetAttributes(isPlayer, inBuild, player, actualBoat, actualPowerUp);
+            getCell(coord.toString()).setIcon(img.getIcon(true, 10));
         } else if (idBoat == -3) {
             //Es una mina
         }
@@ -1289,7 +1057,7 @@ public class Tablero extends javax.swing.JPanel {
      * @return Dimensiones totales del panel.
      */
     public Dimension getDimension() {
-        return new Dimension(getDimensionCells().width + 196 + Gap, getDimensionCells().height);
+        return new Dimension(getDimensionCells().width + 196 + Gap, getDimensionCells().height + Gap);
     }
 
     /**
@@ -1298,7 +1066,7 @@ public class Tablero extends javax.swing.JPanel {
      * @return Dimensiones del tablero de celdas.
      */
     public Dimension getDimensionCells() {
-        int r = (ButtonSize * Size) + ((Gap * 2) * (Size + 1));
+        int r = (ButtonSize * Size) + ButtonSize;
         return new Dimension(r, r);
     }
 
@@ -1352,8 +1120,8 @@ public class Tablero extends javax.swing.JPanel {
             }
         }
         //Nuevos tamanos
-        this.setSize(getDimension());
         TablePanel.setSize(getDimensionCells());
+        this.setSize(getDimension());
         TablePanel.repaint();
     }
     private void rotateButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rotateButtonMouseClicked
@@ -1366,6 +1134,15 @@ public class Tablero extends javax.swing.JPanel {
         generateCoordsOfBoats(player);
     }//GEN-LAST:event_jButton2MouseClicked
 
+    private void rotateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rotateButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_rotateButtonActionPerformed
+
+    private void jButton3KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jButton3KeyPressed
+        // TODO add your handling code here:
+        clearEnetitysOfPlayer(player);
+    }//GEN-LAST:event_jButton3KeyPressed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel ImageBoat;
     private javax.swing.JLabel L_Healtd;
@@ -1375,7 +1152,10 @@ public class Tablero extends javax.swing.JPanel {
     private javax.swing.JPanel TablePanel;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JButton rotateButton;
     // End of variables declaration//GEN-END:variables
 }
