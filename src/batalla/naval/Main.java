@@ -3,6 +3,8 @@ package batalla.naval;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JPanel;
 
 public class Main extends javax.swing.JFrame {
@@ -13,25 +15,68 @@ public class Main extends javax.swing.JFrame {
     Dimension dimensionTable = null;
     protected JPanel TablePlayer = new JPanel();
     //Variables de opciones
-    public int Boat_One = 4;
-    public int Boat_Two = 3;
-    public int Boat_Three = 3;
-    
-    public Main() {
-        initComponents();
-        this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
-        //Menu
-        Panel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.CENTER;
+    private int Boat_One = 4;
+    private int Boat_Two = 3;
+    private int Boat_Three = 3;
+    private int difficulty = 0;
+    private String playerName = "Jugador";
+    private int boardSize = 13;
+    private int numberMines = 3;
 
-        // Agregar el panel hijo al panel principal
-        PanelMenu.setSize(600, 840);
-        Panel.add(PanelMenu, gbc);
+    public int getBoat_One() {
+        return Boat_One;
+    }
+
+    public void setBoat_One(int Boat_One) {
+        this.Boat_One = Boat_One;
+    }
+
+    public int getBoat_Two() {
+        return Boat_Two;
+    }
+
+    public void setBoat_Two(int Boat_Two) {
+        this.Boat_Two = Boat_Two;
+    }
+
+    public int getBoat_Three() {
+        return Boat_Three;
+    }
+
+    public void setBoat_Three(int Boat_Three) {
+        this.Boat_Three = Boat_Three;
+    }
+
+    public int getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(int difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public int getNumberMines() {
+        return numberMines;
+    }
+
+    public void setNumberMines(int numberMines) {
+        this.numberMines = numberMines;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
+    }
+
+    public int getBoardSize() {
+        return boardSize;
+    }
+
+    public void setBoardSize(int boardSize) {
+        this.boardSize = boardSize;
     }
 
     /**
@@ -61,7 +106,7 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
-        Panel.setBackground(new java.awt.Color(255, 255, 255));
+        Panel.setBackground(new java.awt.Color(204, 204, 204));
 
         PanelMenu.setBackground(new java.awt.Color(255, 204, 204));
         PanelMenu.setMinimumSize(new java.awt.Dimension(600, 700));
@@ -189,6 +234,23 @@ public class Main extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+  public Main() {
+        initComponents();
+        this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        //Menu
+        Panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.CENTER;
+
+        // Agregar el panel hijo al panel principal
+        PanelMenu.setSize(600, 840);
+        Panel.add(PanelMenu, gbc);
+        startBoard();
+    }
 
     private void reSize() {
         if (dimensionTable != null) {
@@ -196,31 +258,49 @@ public class Main extends javax.swing.JFrame {
             TablePlayer.repaint();
         }
     }
-    private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
-        reSize();
-        
-    }//GEN-LAST:event_formComponentResized
-    
-    private void ButtonPlayMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonPlayMouseClicked
-        // TODO add your handling code here:
-        Tablero Table = new Tablero(14);
+
+    private List<Integer> getListOfEntitys() {
+        List<Integer> entitys = new ArrayList<>();
+        int boats[] = {Boat_One, Boat_Two, Boat_Three, numberMines};
+        for (int i = 0; i < boats.length; i++) {
+            for (int j = 0; j < boats[i]; j++) {
+                //Si esta en iteracion de minas añade 0
+                entitys.add(i == 3 ? 0 : i + 1);
+            }
+        }
+        return entitys;
+    }
+
+    private void startBoard() {
+
+        Tablero Table = new Tablero(boardSize, difficulty, getListOfEntitys());
         Dimension dimensionTable = Table.getDimension();
+        System.out.println(dimensionTable);
         Panel.remove(PanelMenu);
-        Panel.add(TablePlayer);
-        Panel.repaint();
         TablePlayer.setSize(dimensionTable);
         TablePlayer.add(Table);
         Table.setSize(dimensionTable);
+        Panel.add(TablePlayer);
+        Panel.repaint();
         TablePlayer.revalidate();
         TablePlayer.repaint();
         this.dimensionTable = dimensionTable;
+    }
+    private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
+        reSize();
+
+    }//GEN-LAST:event_formComponentResized
+
+    private void ButtonPlayMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonPlayMouseClicked
+        // TODO add your handling code here:
+        startBoard();
     }//GEN-LAST:event_ButtonPlayMouseClicked
-    
+
     private void ButtonOptionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonOptionMouseClicked
-        
+
         Menu.setVisible(false);
         Options op = new Options(this);
-        
+
         PanelMenu.add(op);
         op.setSize(600, 700);
         PanelMenu.revalidate();

@@ -8,6 +8,7 @@ import Entitys.Locator;
 import Entitys.Mine;
 import Entitys.Power;
 import Entitys.Submarine;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -23,6 +24,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JPanel;
 
 /**
  *
@@ -39,6 +41,7 @@ public class Tablero extends javax.swing.JPanel {
     private char LAST_LETTER; // Última letra posible en el tablero
     private getImage img = new getImage(); //Clase para oobtener los iconos
     private getRandom random = new getRandom();
+    private Color BOARD_BG_COLOR = Color.WHITE;
     // Indicadores de jugador y estado de construcción
     private boolean isPlayer; // Si es el jugador o enemigo
     private boolean inBuild; // Indica si se está construyendo el tablero
@@ -78,10 +81,13 @@ public class Tablero extends javax.swing.JPanel {
      * Constructor de Tablero
      *
      * @param Size Tamaño del tablero
+     * @param Difficulty Numero de la dificultad (0 = Normal, 1 = Medio,
+     * 2=Dificil)
+     * @param EntitysList Lista de las entidades
      */
-    public Tablero(int Size) {
+    public Tablero(int Size, int Difficulty, List<Integer> EntitysList) {
         // Inicialización de variables
-        this.DIFFICULTY = 0;
+        this.DIFFICULTY = Difficulty;
         this.Size = Size; // Tamaño del tablero
         this.LAST_LETTER = (char) ('A' + (Size - 1)); // Última letra en el tablero según el tamaño
         this.isPlayer = true; // Indica si es el turno del jugador
@@ -94,12 +100,12 @@ public class Tablero extends javax.swing.JPanel {
         this.actualBoat = new Boat(); // Barco actualmente seleccionado
         this.enemy = new Player("Bot"); // Jugador enemigo
         this.actualPowerUp = null; // PowerUp actualmente seleccionado
-        this.entityList = Arrays.asList(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 0, 0, 0); //Entidades disponibles
-
+        this.entityList = EntitysList; //Entidades disponibles
         this.img = new getImage(isPlayer, inBuild, player, actualBoat, actualPowerUp);//Clase getImage
         // Inicialización de componentes gráficos y de juego
         initComponents(); // Inicializa los componentes gráficos del tablero
         initCells(); // Inicializa las celdas del tablero
+        PanelGame.setVisible(false);
         setBorders(); // Define los bordes del tablero para validación de celdas
         // generateCoordsOfBoats(enemy);//Crear tablero del enemigo IA
         changeEntity();//Inicializa la lista de entidades y construccion
@@ -126,7 +132,13 @@ public class Tablero extends javax.swing.JPanel {
         jButton3 = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel2 = new javax.swing.JLabel();
+        PlayButton = new javax.swing.JButton();
         TablePanel = new javax.swing.JPanel();
+        PanelGame = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        rotateButton1 = new javax.swing.JButton();
+        Board = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
 
         jButton1.setText("jButton1");
 
@@ -178,6 +190,13 @@ public class Tablero extends javax.swing.JPanel {
 
         jLabel2.setText("Herramientas:");
 
+        PlayButton.setText("Atacar");
+        PlayButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                PlayButtonMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout PanelLayout = new javax.swing.GroupLayout(Panel);
         Panel.setLayout(PanelLayout);
         PanelLayout.setHorizontalGroup(
@@ -195,7 +214,7 @@ public class Tablero extends javax.swing.JPanel {
                         .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(ImageBoat, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(rotateButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(29, Short.MAX_VALUE))
+                .addContainerGap(83, Short.MAX_VALUE))
             .addGroup(PanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -208,10 +227,15 @@ public class Tablero extends javax.swing.JPanel {
                             .addComponent(jLabel1))
                         .addGap(0, 0, Short.MAX_VALUE))))
             .addGroup(PanelLayout.createSequentialGroup()
-                .addGap(28, 28, 28)
-                .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jButton2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelLayout.createSequentialGroup()
+                        .addGap(28, 28, 28)
+                        .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jButton2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(PanelLayout.createSequentialGroup()
+                        .addGap(60, 60, 60)
+                        .addComponent(PlayButton)))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         PanelLayout.setVerticalGroup(
@@ -237,11 +261,71 @@ public class Tablero extends javax.swing.JPanel {
                 .addComponent(jButton2)
                 .addGap(18, 18, 18)
                 .addComponent(jButton3)
+                .addGap(18, 18, 18)
+                .addComponent(PlayButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         TablePanel.setBackground(new java.awt.Color(204, 255, 255));
+        TablePanel.setPreferredSize(new java.awt.Dimension(642, 588));
         TablePanel.setLayout(new java.awt.GridLayout(1, 0));
+
+        PanelGame.setBackground(new java.awt.Color(255, 255, 255));
+
+        jLabel3.setText("Ataques especiales");
+
+        rotateButton1.setText("Rotar");
+        rotateButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                rotateButton1MouseClicked(evt);
+            }
+        });
+        rotateButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rotateButton1ActionPerformed(evt);
+            }
+        });
+
+        Board.setBackground(new java.awt.Color(102, 102, 102));
+        Board.setLayout(new java.awt.GridBagLayout());
+
+        jLabel4.setText("Tu tablero");
+
+        javax.swing.GroupLayout PanelGameLayout = new javax.swing.GroupLayout(PanelGame);
+        PanelGame.setLayout(PanelGameLayout);
+        PanelGameLayout.setHorizontalGroup(
+            PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelGameLayout.createSequentialGroup()
+                .addContainerGap(54, Short.MAX_VALUE)
+                .addComponent(rotateButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(46, 46, 46))
+            .addGroup(PanelGameLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelGameLayout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(PanelGameLayout.createSequentialGroup()
+                        .addGroup(PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(Board, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(PanelGameLayout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addContainerGap())))
+        );
+        PanelGameLayout.setVerticalGroup(
+            PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelGameLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(rotateButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(Board, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -251,15 +335,18 @@ public class Tablero extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(Panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(TablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, 642, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(TablePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(PanelGame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(TablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, 588, Short.MAX_VALUE)
+                    .addComponent(PanelGame, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(TablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -809,6 +896,21 @@ public class Tablero extends javax.swing.JPanel {
         displayBoatInformation();
     }
 
+    private void play() {
+        System.out.println("Juego");
+        //Limpio copyOfEntityList para ser usada en otros metodos
+        copyOfEntityList.clear();
+        actualBoat = null;
+        actualPowerUp = null;
+        //Inicia el juego
+        player.setTypeAttack(true);
+        Panel.setVisible(false);
+        PanelGame.setVisible(true);
+        clearAllCells();
+        inBuild = false;
+        //IA vs Player
+    }
+
     /**
      * Asigna la entidad actual y cambia a la siguiente:
      *
@@ -841,15 +943,7 @@ public class Tablero extends javax.swing.JPanel {
                 inBuild = false;
             }
         } else {
-            System.out.println("Juego");
-            //Limpio copyOfEntityList para ser usada en otros metodos
-            copyOfEntityList.clear();
-            actualBoat = null;
-            actualPowerUp = null;
-            //Inicia el juego
-            player.setTypeAttack(true);
-            System.out.println(player.getBoatList().toString());
-            //IA vs Player
+            play();
         }
     }
 
@@ -1057,7 +1151,7 @@ public class Tablero extends javax.swing.JPanel {
      * @return Dimensiones totales del panel.
      */
     public Dimension getDimension() {
-        return new Dimension(getDimensionCells().width + 196 + Gap, getDimensionCells().height + Gap);
+        return new Dimension(getDimensionCells().width + 250 + Gap, getDimensionCells().height + Gap);
     }
 
     /**
@@ -1082,6 +1176,7 @@ public class Tablero extends javax.swing.JPanel {
 
         final Dimension sizeButton = new Dimension(ButtonSize, ButtonSize);
         GridLayout gridLayout = new GridLayout(Size, Size);
+        Board.setLayout(gridLayout);
         gridLayout.setHgap(Gap);
         gridLayout.setVgap(Gap);
         TablePanel.setLayout(gridLayout);
@@ -1117,12 +1212,18 @@ public class Tablero extends javax.swing.JPanel {
                 cell.setBorderPainted(false);
                 //Agregar boton al jpanel
                 TablePanel.add(cell);
+                //Agregar a board
+                JPanel panel = new JPanel();
+                panel.setBackground(BOARD_BG_COLOR);
+                panel.setName("B_" + cellName);
+                Board.add(panel);
             }
         }
         //Nuevos tamanos
         TablePanel.setSize(getDimensionCells());
         this.setSize(getDimension());
         TablePanel.repaint();
+        Board.repaint();
     }
     private void rotateButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rotateButtonMouseClicked
         // TODO add your handling code here:
@@ -1143,19 +1244,37 @@ public class Tablero extends javax.swing.JPanel {
         clearEnetitysOfPlayer(player);
     }//GEN-LAST:event_jButton3KeyPressed
 
+    private void PlayButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PlayButtonMouseClicked
+        play();
+    }//GEN-LAST:event_PlayButtonMouseClicked
+
+    private void rotateButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rotateButton1MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_rotateButton1MouseClicked
+
+    private void rotateButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rotateButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_rotateButton1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel Board;
     private javax.swing.JLabel ImageBoat;
     private javax.swing.JLabel L_Healtd;
     private javax.swing.JLabel L_Orientation;
     private javax.swing.JLabel L_Size;
     private javax.swing.JPanel Panel;
+    private javax.swing.JPanel PanelGame;
+    private javax.swing.JButton PlayButton;
     private javax.swing.JPanel TablePanel;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JButton rotateButton;
+    private javax.swing.JButton rotateButton1;
     // End of variables declaration//GEN-END:variables
 }

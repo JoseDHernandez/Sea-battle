@@ -4,6 +4,8 @@
  */
 package batalla.naval;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author User
@@ -14,19 +16,101 @@ public class Options extends javax.swing.JPanel {
      * Creates new form NewJPanel
      */
     private Main ParentFrame;
+    private int MAX_BOAT_ONE = 20;
+    private int MAX_BOAT_TWO = 10;
+    private int MAX_BOAT_THREE = 5;
+    private int MAX_NUMBER_MINES = 5;
 
     public Options(Main ParentFrame) {
         this.ParentFrame = ParentFrame;
         initComponents();
-        BL.setText("" + ParentFrame.Boat_One);
-        AL.setText("" + ParentFrame.Boat_Two);
-        CL.setText("" + ParentFrame.Boat_Three);
+        Dog.setVisible(false);
+        AMAS.setName("AMAS");
+        AMEN.setName("AMEN");
+        BMAS.setName("BMAS");
+        BMEN.setName("BMEN");
+        CMAS.setName("CMAS");
+        CMEN.setName("CMEN");
+        AL.setText("" + ParentFrame.getBoat_One());
+        BL.setText("" + ParentFrame.getBoat_Two());
+        CL.setText("" + ParentFrame.getBoat_Three());
     }
 
     private void changeNumberBoats(String name) {
         char type = name.charAt(0);
         name = name.substring(1);
-        System.out.println(name + " " + type);
+        String textValue = switch (type) {
+            case 'A' ->
+                textValue = AL.getText();
+            case 'B' ->
+                textValue = BL.getText();
+            default ->
+                textValue = CL.getText();
+        };
+        int num;
+        try {
+            num = Integer.parseInt(textValue);
+            if (name.equalsIgnoreCase("mas")) {
+                num++;
+            } else {
+                num--;
+            }
+            int lim = switch (type) {
+                case 'A' ->
+                    MAX_BOAT_ONE;
+                case 'B' ->
+                    MAX_BOAT_TWO;
+                default ->
+                    MAX_BOAT_THREE;
+            };
+            num = validateNumber(num, lim);
+        } catch (NumberFormatException e) {
+            num = 1;
+        }
+
+        switch (type) {
+            case 'A' ->
+                AL.setText(String.valueOf(num));
+            case 'B' ->
+                BL.setText(String.valueOf(num));
+            default ->
+                CL.setText(String.valueOf(num));
+        }
+    }
+
+    private int validateNumber(int num, int max) {
+        if (num <= 0 || num > max) {
+            num = 1;
+        }
+        return num;
+    }
+
+    private int validateNumber(int num) {
+        return validateNumber(num, 10);
+    }
+
+    private void saveOptions() {
+        try {
+            int B_O = validateNumber(Integer.parseInt(AL.getText()));
+            int B_TW = validateNumber(Integer.parseInt(BL.getText()));
+            int B_TH = validateNumber(Integer.parseInt(CL.getText()));
+            int boardSize = Integer.parseInt(TableSize.getText());
+            if (boardSize >= 6 && boardSize <= 20) {
+                ParentFrame.setBoardSize(boardSize);
+            }
+            int numMines = validateNumber(Integer.parseInt(NumberMines.getText()), MAX_NUMBER_MINES);
+            String name = PlayerName.getText().trim();
+            if (!name.isEmpty() && name.length() >= 3 && name.length() <= 15) {
+                ParentFrame.setPlayerName(name);
+            }
+            ParentFrame.setBoat_One(B_O);
+            ParentFrame.setBoat_Two(B_TW);
+            ParentFrame.setBoat_Three(B_TH);
+            ParentFrame.setDifficulty(Difficulty.getSelectedIndex());
+            ParentFrame.setNumberMines(numMines);
+        } catch (NumberFormatException e) {
+            JOptionPane.showInternalMessageDialog(this, "Opciones no establecidas", "Datos invalidos", JOptionPane.WARNING_MESSAGE);
+        }
     }
 
     /**
@@ -41,23 +125,23 @@ public class Options extends javax.swing.JPanel {
         Options = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        SaveButton = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         TableSize = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
-        CMAS = new javax.swing.JButton();
         CMEN = new javax.swing.JButton();
+        CMAS = new javax.swing.JButton();
         CL = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
-        AMAS = new javax.swing.JButton();
-        AMEN = new javax.swing.JButton();
-        AL = new javax.swing.JTextField();
+        BMEN = new javax.swing.JButton();
+        BMAS = new javax.swing.JButton();
+        BL = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
-        BMAS = new javax.swing.JButton();
-        BMEN = new javax.swing.JButton();
-        BL = new javax.swing.JTextField();
+        AMEN = new javax.swing.JButton();
+        AMAS = new javax.swing.JButton();
+        AL = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
@@ -89,7 +173,12 @@ public class Options extends javax.swing.JPanel {
             }
         });
 
-        jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Save.png"))); // NOI18N
+        SaveButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Save.png"))); // NOI18N
+        SaveButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                SaveButtonMouseClicked(evt);
+            }
+        });
 
         jLabel6.setText("Tamaño del tablero");
 
@@ -99,17 +188,17 @@ public class Options extends javax.swing.JPanel {
 
         jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/3.png"))); // NOI18N
 
-        CMAS.setText("-");
-        CMAS.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                CMASMouseClicked(evt);
-            }
-        });
-
-        CMEN.setText("+");
+        CMEN.setText("-");
         CMEN.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 CMENMouseClicked(evt);
+            }
+        });
+
+        CMAS.setText("+");
+        CMAS.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                CMASMouseClicked(evt);
             }
         });
 
@@ -124,11 +213,11 @@ public class Options extends javax.swing.JPanel {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel9)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(CMAS)
-                        .addGap(18, 18, 18)
-                        .addComponent(CL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(CMEN)))
+                        .addComponent(CMEN)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(CL)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(CMAS)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -137,29 +226,29 @@ public class Options extends javax.swing.JPanel {
                 .addComponent(jLabel9)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(CMAS)
                     .addComponent(CMEN)
+                    .addComponent(CMAS)
                     .addComponent(CL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
         jPanel2.setBackground(new java.awt.Color(153, 153, 153));
 
-        AMAS.setText("-");
-        AMAS.addMouseListener(new java.awt.event.MouseAdapter() {
+        BMEN.setText("-");
+        BMEN.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                AMASMouseClicked(evt);
+                BMENMouseClicked(evt);
             }
         });
 
-        AMEN.setText("+");
-        AMEN.addMouseListener(new java.awt.event.MouseAdapter() {
+        BMAS.setText("+");
+        BMAS.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                AMENMouseClicked(evt);
+                BMASMouseClicked(evt);
             }
         });
 
-        AL.setText("3");
+        BL.setText("3");
 
         jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/2.png"))); // NOI18N
 
@@ -169,15 +258,16 @@ public class Options extends javax.swing.JPanel {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(AMAS)
-                .addGap(18, 18, 18)
-                .addComponent(AL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(15, 15, 15)
-                .addComponent(AMEN)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel8)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(BMEN)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(BL)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(BMAS))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel8)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -186,29 +276,29 @@ public class Options extends javax.swing.JPanel {
                 .addComponent(jLabel8)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(AMAS)
-                    .addComponent(AMEN)
-                    .addComponent(AL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(BMEN)
+                    .addComponent(BMAS)
+                    .addComponent(BL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
         jPanel3.setBackground(new java.awt.Color(153, 153, 153));
 
-        BMAS.setText("-");
-        BMAS.addMouseListener(new java.awt.event.MouseAdapter() {
+        AMEN.setText("-");
+        AMEN.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                BMASMouseClicked(evt);
+                AMENMouseClicked(evt);
             }
         });
 
-        BMEN.setText("+");
-        BMEN.addMouseListener(new java.awt.event.MouseAdapter() {
+        AMAS.setText("+");
+        AMAS.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                BMENMouseClicked(evt);
+                AMASMouseClicked(evt);
             }
         });
 
-        BL.setText("4");
+        AL.setText("4");
 
         jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/1.png"))); // NOI18N
 
@@ -220,12 +310,14 @@ public class Options extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(BMAS)
-                        .addGap(18, 18, 18)
-                        .addComponent(BL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(15, 15, 15)
-                        .addComponent(BMEN))
-                    .addComponent(jLabel7))
+                        .addComponent(AMEN)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(AL, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(AMAS))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel7)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -234,10 +326,10 @@ public class Options extends javax.swing.JPanel {
                 .addComponent(jLabel7)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(BMAS)
-                    .addComponent(BMEN)
-                    .addComponent(BL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(AMEN)
+                    .addComponent(AMAS)
+                    .addComponent(AL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 8, Short.MAX_VALUE))
         );
 
         jLabel10.setText("Cantidad de barcos");
@@ -250,7 +342,7 @@ public class Options extends javax.swing.JPanel {
 
         jLabel13.setText("Dificultad");
 
-        Difficulty.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Normal", "Facil", "Dificil" }));
+        Difficulty.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Normal", "Medio", "Dificil" }));
 
         jLabel14.setText("Nombre de jugador");
 
@@ -268,11 +360,11 @@ public class Options extends javax.swing.JPanel {
                     .addComponent(jLabel10)
                     .addGroup(OptionsLayout.createSequentialGroup()
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(26, 26, 26)
+                        .addGap(27, 27, 27)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(29, 29, 29)
+                        .addGap(27, 27, 27)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(33, 33, 33))
+                .addGap(34, 34, 34))
             .addGroup(OptionsLayout.createSequentialGroup()
                 .addGap(31, 31, 31)
                 .addGroup(OptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -286,13 +378,13 @@ public class Options extends javax.swing.JPanel {
                         .addContainerGap())
                     .addGroup(OptionsLayout.createSequentialGroup()
                         .addGap(43, 43, 43)
-                        .addGroup(OptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(OptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(OptionsLayout.createSequentialGroup()
                                 .addGroup(OptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel6)
                                     .addComponent(jLabel11))
                                 .addGap(54, 54, 54)
-                                .addGroup(OptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(OptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(TableSize)
                                     .addComponent(NumberMines)))
                             .addGroup(OptionsLayout.createSequentialGroup()
@@ -303,7 +395,7 @@ public class Options extends javax.swing.JPanel {
                                 .addGroup(OptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(PlayerName)
                                     .addComponent(Difficulty, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 98, Short.MAX_VALUE)
                         .addComponent(Dog)
                         .addGap(48, 48, 48))))
             .addGroup(OptionsLayout.createSequentialGroup()
@@ -313,7 +405,7 @@ public class Options extends javax.swing.JPanel {
                         .addGap(6, 6, 6)
                         .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(SaveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 554, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
@@ -325,11 +417,11 @@ public class Options extends javax.swing.JPanel {
                 .addGap(29, 29, 29)
                 .addComponent(jLabel10)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(OptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addGroup(OptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(3, 3, 3)
                 .addComponent(jLabel12)
@@ -359,8 +451,8 @@ public class Options extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(6, 6, 6))
-                    .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(SaveButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(95, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -391,33 +483,38 @@ public class Options extends javax.swing.JPanel {
         ParentFrame.repaint();
     }//GEN-LAST:event_jButton1MouseClicked
 
-    private void CMASMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_CMASMouseClicked
-        changeNumberBoats(evt.getComponent().getName());
-    }//GEN-LAST:event_CMASMouseClicked
-
     private void CMENMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_CMENMouseClicked
         changeNumberBoats(evt.getComponent().getName());
     }//GEN-LAST:event_CMENMouseClicked
 
-    private void AMASMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_AMASMouseClicked
+    private void CMASMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_CMASMouseClicked
         changeNumberBoats(evt.getComponent().getName());
-    }//GEN-LAST:event_AMASMouseClicked
-
-    private void AMENMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_AMENMouseClicked
-        changeNumberBoats(evt.getComponent().getName());
-    }//GEN-LAST:event_AMENMouseClicked
-
-    private void BMASMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BMASMouseClicked
-        changeNumberBoats(evt.getComponent().getName());
-    }//GEN-LAST:event_BMASMouseClicked
+    }//GEN-LAST:event_CMASMouseClicked
 
     private void BMENMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BMENMouseClicked
         changeNumberBoats(evt.getComponent().getName());
     }//GEN-LAST:event_BMENMouseClicked
 
+    private void BMASMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BMASMouseClicked
+        changeNumberBoats(evt.getComponent().getName());
+    }//GEN-LAST:event_BMASMouseClicked
+
+    private void AMENMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_AMENMouseClicked
+        changeNumberBoats(evt.getComponent().getName());
+    }//GEN-LAST:event_AMENMouseClicked
+
+    private void AMASMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_AMASMouseClicked
+        changeNumberBoats(evt.getComponent().getName());
+    }//GEN-LAST:event_AMASMouseClicked
+
     private void jButton1MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseEntered
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1MouseEntered
+
+    private void SaveButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SaveButtonMouseClicked
+        // TODO add your handling code here:
+        saveOptions();
+    }//GEN-LAST:event_SaveButtonMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField AL;
@@ -434,9 +531,9 @@ public class Options extends javax.swing.JPanel {
     private javax.swing.JTextField NumberMines;
     private javax.swing.JPanel Options;
     private javax.swing.JTextField PlayerName;
+    private javax.swing.JButton SaveButton;
     private javax.swing.JTextField TableSize;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
