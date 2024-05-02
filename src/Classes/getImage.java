@@ -13,34 +13,14 @@ import javax.swing.ImageIcon;
 
 public class getImage {
 
-    private boolean isPlayer; // Si es el jugador o enemigo
-    private boolean inBuild; // Indica si se está construyendo el tablero
     private Player player; // Jugador actual
-    private Boat actualBoat; // Barco actualmente seleccionado
-    private Power actualPowerUp; // PowerUp actualmente seleccionado
 
     public getImage() {
-        this.isPlayer = false;
-        this.inBuild = false;
         this.player = null;
-        this.actualBoat = new Boat();
-        this.actualPowerUp = new Power();
     }
 
-    public getImage(boolean isPlayer, boolean inBuild, Player player, Boat actualBoat, Power actualPowerUp) {
-        this.isPlayer = isPlayer;
-        this.inBuild = inBuild;
+    public getImage(Player player) {
         this.player = player;
-        this.actualBoat = actualBoat;
-        this.actualPowerUp = actualPowerUp;
-    }
-
-    public void resetAttributes(boolean isPlayer, boolean inBuild, Player player, Boat actualBoat, Power actualPowerUp) {
-        this.isPlayer = isPlayer;
-        this.inBuild = inBuild;
-        this.player = player;
-        this.actualBoat = actualBoat;
-        this.actualPowerUp = actualPowerUp;
     }
 
     /**
@@ -85,15 +65,22 @@ public class getImage {
      *
      * @param type El tipo de celda.
      * @param index El índice de la longitud de la entidad o parte espeficica
-     * (10 para celda impactada, 0 - 2 Barcos y submarino, 8 y 9 Torpedos, 0 - 8
-     * Localizador con 4 reservador para GPS).
+     * (10 para celda impactada (en agua), 0 - 2 Barcos y submarino, 8 y 9
+     * Torpedos, 0 - 8 Localizador con 4 reservador para GPS, 11 - 14 Imagenes
+     * barcos, 15 celda a impactar).
+     * @param actualBoat
+     * @param actualPowerUp
+     * @param inBuild
      * @return Un ImageIcon para la celda especificada.
      */
-    public ImageIcon getIcon(boolean type, int index) {
+    public ImageIcon getIcon(boolean type, int index, Boat actualBoat, Power actualPowerUp, boolean inBuild) {
 
         StringBuilder typeOfImage = new StringBuilder();
         String url = "";
         //Imagen de impacto
+        if (index == 15) {
+            return new ImageIcon(urlOfImage("ZH"));
+        }
         if (index == 10) {
             return new ImageIcon(urlOfImage("ZX"));
         }
@@ -102,16 +89,11 @@ public class getImage {
             //Le resto 11 al index para obtener el numero de imagen
             return rotateImage(new ImageIcon(urlOfImage((index - 11) + "")), actualBoat == null ? 0.0 : actualBoat.getRotationDegrees());
         }
-        if (inBuild && player.getTypeAttack()) {
-            //Validar si es un mina y powerUp esta activo
+        if (player.getTypeAttack()) {
 
             //Obtener inicial
             String iniLetter = "";
-            if (type && isPlayer) {
-                iniLetter = "P";
-            } else if (type && !isPlayer) {
-                iniLetter = "X";
-            }
+            iniLetter = inBuild ? "P" : "X";
             typeOfImage.append(iniLetter);
             //Siguientes letras
             typeOfImage.append(actualBoat.getSize() == 1 ? "B" : "H");
@@ -211,28 +193,28 @@ public class getImage {
         }
     }
 
-    public List<ImageIcon> getListIcons(boolean type, List<String> cells) {
+    public List<ImageIcon> getListIcons(boolean type, List<String> cells, Boat actualBoat, Power actualPowerUp, boolean inBuild) {
         List<ImageIcon> tempList = new ArrayList<>();
         if (inBuild) {
             if (player.getTypeAttack()) {
                 //Boats
                 switch (actualBoat.getSize()) {
                     case 3:
-                        tempList.add(getIcon(type, 0));
-                        tempList.add(getIcon(type, 1));
-                        tempList.add(getIcon(type, 2));
+                        tempList.add(getIcon(type, 0, actualBoat, actualPowerUp, inBuild));
+                        tempList.add(getIcon(type, 1, actualBoat, actualPowerUp, inBuild));
+                        tempList.add(getIcon(type, 2, actualBoat, actualPowerUp, inBuild));
                         break;
                     case 2:
-                        tempList.add(getIcon(type, 0));
-                        tempList.add(getIcon(type, 1));
+                        tempList.add(getIcon(type, 0, actualBoat, actualPowerUp, inBuild));
+                        tempList.add(getIcon(type, 1, actualBoat, actualPowerUp, inBuild));
                         break;
                     case 1:
-                        tempList.add(getIcon(type, 0));
+                        tempList.add(getIcon(type, 0, actualBoat, actualPowerUp, inBuild));
                         break;
                 }
             } else {
                 //Mine
-                tempList.add(getIcon(type, 0));
+                tempList.add(getIcon(type, 0, actualBoat, actualPowerUp, inBuild));
             }
         } else if (player.getTypeAttack() == false) {
 
@@ -243,7 +225,7 @@ public class getImage {
                 6 7 8
                  */
                 for (int i = 0; i < cells.size(); i++) {
-                    tempList.add(getIcon(type, i));
+                    tempList.add(getIcon(type, i, actualBoat, actualPowerUp, inBuild));
                 }
 
             } else if (actualPowerUp instanceof Submarine) {
@@ -252,63 +234,25 @@ public class getImage {
                     Submarine sub = (Submarine) actualPowerUp;
                     if (!sub.getTorpedoes().isEmpty()) {
                         //Celdas antiguas
-                        tempList.add(getIcon(type, 8));
-                        tempList.add(getIcon(type, 8));
+                        tempList.add(getIcon(type, 8, actualBoat, actualPowerUp, inBuild));
+                        tempList.add(getIcon(type, 8, actualBoat, actualPowerUp, inBuild));
                     }
-                    tempList.add(getIcon(type, 8));
-                    tempList.add(getIcon(type, 9));
+                    tempList.add(getIcon(type, 8, actualBoat, actualPowerUp, inBuild));
+                    tempList.add(getIcon(type, 9, actualBoat, actualPowerUp, inBuild));
                 } else {
                     //Submarino
-                    tempList.add(getIcon(type, 0));
-                    tempList.add(getIcon(type, 1));
-                    tempList.add(getIcon(type, 2));
+                    tempList.add(getIcon(type, 0, actualBoat, actualPowerUp, inBuild));
+                    tempList.add(getIcon(type, 1, actualBoat, actualPowerUp, inBuild));
+                    tempList.add(getIcon(type, 2, actualBoat, actualPowerUp, inBuild));
                 }
             } else {
                 //Celda jugada
-                tempList.add(getIcon(type, 10));
+                tempList.add(getIcon(type, 10, actualBoat, actualPowerUp, inBuild));
             }
+        } else if (!inBuild && player.getTypeAttack()) {
+            //Celda a atacar 
+            tempList.add(getIcon(type, type ? 10 : 15, actualBoat, actualPowerUp, inBuild));
         }
         return tempList;
     }
-
-    public boolean isIsPlayer() {
-        return isPlayer;
-    }
-
-    public void setIsPlayer(boolean isPlayer) {
-        this.isPlayer = isPlayer;
-    }
-
-    public boolean isInBuild() {
-        return inBuild;
-    }
-
-    public void setInBuild(boolean inBuild) {
-        this.inBuild = inBuild;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
-
-    public Boat getActualBoat() {
-        return actualBoat;
-    }
-
-    public void setActualBoat(Boat actualBoat) {
-        this.actualBoat = actualBoat;
-    }
-
-    public Power getActualPowerUp() {
-        return actualPowerUp;
-    }
-
-    public void setActualPowerUp(Power actualPowerUp) {
-        this.actualPowerUp = actualPowerUp;
-    }
-
 }

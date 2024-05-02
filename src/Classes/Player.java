@@ -4,9 +4,8 @@
  */
 package Classes;
 
-import Entitys.Mine;
-import Entitys.Cell;
 import Entitys.Boat;
+import Entitys.Cell;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,7 +92,10 @@ public class Player implements Cell {
 
     @Override
     public void addCell(String cell) {
-        cells.add(cell);
+        if (!cells.contains(cell)) {
+            cells.add(cell);
+        }
+
     }
 
     @Override
@@ -139,30 +141,6 @@ public class Player implements Cell {
         boats.addAll(list);
     }
 
-    /**
-     * Retorna el id de la entidad y añade la coordenada en caso de ser nueva
-     */
-    public int impactVerification(String coord) {
-        if (boats.isEmpty()) {
-            throw new NullPointerException("El Jugador: " + name + " no tiene botes disponibles");
-        } else if (cells.contains(coord)) {
-            //Celda ya jugada
-            return -1;
-        }
-        for (int i = 1; i < boats.size(); i += 2) {
-            if (boats.get(i) instanceof Mine) {
-                //Retorna -3 indicando que es una mina
-                return -3;
-            } else if (((Boat) boats.get(i)).getCoords().contains(coord)) {
-                cells.add(coord);
-                return i - 1;
-            }
-        }
-        //Celda sin barco
-        cells.add(coord);
-        return -2;
-    }
-
     public Boat getBoat(int id) {
         id = id + 1;
         Boat temp = (Boat) boats.get(id);
@@ -173,7 +151,7 @@ public class Player implements Cell {
             boats.set(id, temp);
             return temp;
         }
-        //Restableco id para poder borrar ID y boat
+        //Restableco id para poder borrar ID y boat si ya no tiene vida
         id = id - 1;
         //Remuevo id
         boats.remove(id);

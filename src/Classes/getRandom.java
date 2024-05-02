@@ -1,5 +1,6 @@
 package Classes;
 
+import batalla.naval.Tablero;
 import java.util.Random;
 
 public class getRandom {
@@ -66,7 +67,7 @@ public class getRandom {
         String coord = "";
         do {
             coord = getRandomCoords(attackPlayer);
-        } while (targetPlayer.impactVerification(coord) == -1);
+        } while (Tablero.impactVerification(coord, attackPlayer, targetPlayer) == -1);
         return coord;
     }
 
