@@ -1,6 +1,5 @@
 package Classes;
 
-import batalla.naval.Tablero;
 import java.util.Random;
 
 public class getRandom {
@@ -52,41 +51,19 @@ public class getRandom {
         return getRandomNumber(0, max);
     }
 
-    /**
-     * Este metodo retorna una coordenada aleatoria no usada
-     *
-     * @param attackPlayer Objeto Player del jugador atacante
-     * @param targetPlayer Objeto Player del jugador al que se va a atacar
-     * @return Coordenada aleatoria, en caso de que todas las coordenadas fueron
-     * usadas se retorna {@code null}
-     */
-    public String getRandomCoords(Player attackPlayer, Player targetPlayer) {
-        if (attackPlayer.getCells().size() == (Size * Size)) {
+    public String getRandomCoord(Player templayer) {
+        if (templayer.getListCells().isEmpty()) {
             return null;
         }
-        String coord = "";
-        do {
-            coord = getRandomCoords(attackPlayer);
-        } while (Tablero.impactVerification(coord, attackPlayer, targetPlayer) == -1);
-        return coord;
-    }
-
-    /**
-     * Genera una coordenada aleatorias para el jugador especificado,
-     * asegurándose de que no se hayan utilizado previamente.
-     *
-     * @param tempPlayer El jugador para el cual se generan las coordenadas.
-     * @return Las coordenadas aleatorias generadas para el jugador.
-     */
-    public String getRandomCoords(Player tempPlayer) {
-        StringBuilder coord = new StringBuilder();
-
-        do {
-            coord = new StringBuilder();
-            char letter = (char) getRandomNumber(FIRST_LETTER, MAX_LETTER);
-            coord.append(letter).append(getRandomNumber(1, Size));
-        } while (tempPlayer.getCells().contains(coord.toString()));
-        return coord.toString();
+        try {
+            //listCells.removeAll(enemy.getCells());
+            int index = templayer.getListCells().size() - 1;
+            String coord = templayer.getListCells().get(getRandomNumber(index));
+            templayer.getListCells().remove(index);
+            return coord;
+        } catch (NullPointerException e) {
+            return null;
+        }
     }
 
 }

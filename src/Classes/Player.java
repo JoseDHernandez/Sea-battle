@@ -6,6 +6,7 @@ package Classes;
 
 import Entitys.Boat;
 import Entitys.Cell;
+import Entitys.Power;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,14 +25,16 @@ public class Player implements Cell {
      */
     private boolean typeAttack;
     /**
-     * Lista de celdas usadas
+     * Lista de celdas usadas INTERFAZ
      */
     private List<String> cells;
-
     /**
      * Lista de barcos del jugador [Id, Boat Object]
      */
     private List<Object> boats;
+    private List<Power> powers;
+    //Celdas disponibles (Random)
+    private List<String> listCells = new ArrayList<>();
 
     /**
      * Constructor de la clase Player. Inicializa el nombre del jugador como una
@@ -42,6 +45,7 @@ public class Player implements Cell {
         name = "";
         cells = new ArrayList<>();
         boats = new ArrayList<>();
+        powers = new ArrayList<>();
         typeAttack = true;
     }
 
@@ -49,7 +53,52 @@ public class Player implements Cell {
         this.name = name;
         cells = new ArrayList<>();
         boats = new ArrayList<>();
+        powers = new ArrayList<>();
         typeAttack = true;
+    }
+
+    public void setListCells(List<String> listCells) {
+        this.listCells.clear();
+        this.listCells.addAll(listCells);
+    }
+
+    public List<String> getListCells() {
+        return listCells;
+    }
+
+    public void removeCell(String cell) {
+        listCells.remove(cell);
+    }
+
+    public void removeCells(List<String> cell) {
+        listCells.removeAll(cell);
+    }
+
+    public boolean findPowerCoord(String coord) {
+        if (powers.isEmpty()) {
+            return false;
+        }
+        int i = 0;
+        for (Power power : powers) {
+            if (power.getPosition().equals(coord)) {
+                powers.remove(i);
+                return true;
+            }
+            i++;
+        }
+        return false;
+    }
+
+    public List<Power> getPowers() {
+        return powers;
+    }
+
+    public void addPower(Power power) {
+        powers.add(power);
+    }
+
+    public void clearPowers() {
+        powers.clear();
     }
 
     /**

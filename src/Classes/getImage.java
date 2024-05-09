@@ -2,6 +2,7 @@ package Classes;
 
 import Entitys.Boat;
 import Entitys.Locator;
+import Entitys.Mine;
 import Entitys.Power;
 import Entitys.Submarine;
 import java.awt.Graphics2D;
@@ -89,7 +90,7 @@ public class getImage {
             //Le resto 11 al index para obtener el numero de imagen
             return rotateImage(new ImageIcon(urlOfImage((index - 11) + "")), actualBoat == null ? 0.0 : actualBoat.getRotationDegrees());
         }
-        if (player.getTypeAttack()) {
+        if (player.getTypeAttack() && actualBoat != null) {
 
             //Obtener inicial
             String iniLetter = "";
@@ -141,10 +142,10 @@ public class getImage {
             }
             return rotateImage(new ImageIcon(urlOfImage(url)), actualBoat.getRotationDegrees());
 
-        } else if (inBuild && player.getTypeAttack() == false) {
-            return new ImageIcon(urlOfImage("Mine"));
         } else {
-            if (actualPowerUp instanceof Locator) {
+            if (actualPowerUp instanceof Mine) {
+                return new ImageIcon(urlOfImage("Mine"));
+            } else if (actualPowerUp instanceof Locator) {
                 /*
                 0 1 2
                 3 [4] 5
@@ -196,7 +197,7 @@ public class getImage {
     public List<ImageIcon> getListIcons(boolean type, List<String> cells, Boat actualBoat, Power actualPowerUp, boolean inBuild) {
         List<ImageIcon> tempList = new ArrayList<>();
         if (inBuild) {
-            if (player.getTypeAttack()) {
+            if (player.getTypeAttack() && actualBoat != null) {
                 //Boats
                 switch (actualBoat.getSize()) {
                     case 3:
