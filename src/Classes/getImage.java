@@ -232,12 +232,6 @@ public class getImage {
             } else if (actualPowerUp instanceof Submarine) {
                 //Torpedo
                 if (cells.size() == 2) {
-                    Submarine sub = (Submarine) actualPowerUp;
-                    if (!sub.getTorpedoes().isEmpty()) {
-                        //Celdas antiguas
-                        tempList.add(getIcon(type, 8, actualBoat, actualPowerUp, inBuild));
-                        tempList.add(getIcon(type, 8, actualBoat, actualPowerUp, inBuild));
-                    }
                     tempList.add(getIcon(type, 8, actualBoat, actualPowerUp, inBuild));
                     tempList.add(getIcon(type, 9, actualBoat, actualPowerUp, inBuild));
                 } else {
