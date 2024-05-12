@@ -6,6 +6,7 @@ package Classes;
 
 import Entitys.Boat;
 import Entitys.Cell;
+import Entitys.Mine;
 import Entitys.Power;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ public class Player implements Cell {
      * Lista de barcos del jugador [Id, Boat Object]
      */
     private List<Object> boats;
-    private List<Power> powers;
+    private List<Power> listOfMines;
     //Celdas disponibles (Random)
     private List<String> listCells = new ArrayList<>();
 
@@ -45,7 +46,7 @@ public class Player implements Cell {
         name = "";
         cells = new ArrayList<>();
         boats = new ArrayList<>();
-        powers = new ArrayList<>();
+        listOfMines = new ArrayList<>();
         typeAttack = true;
     }
 
@@ -53,7 +54,7 @@ public class Player implements Cell {
         this.name = name;
         cells = new ArrayList<>();
         boats = new ArrayList<>();
-        powers = new ArrayList<>();
+        listOfMines = new ArrayList<>();
         typeAttack = true;
     }
 
@@ -66,39 +67,42 @@ public class Player implements Cell {
         return listCells;
     }
 
-    public void removeCell(String cell) {
+    public void removeCellOfListCells(String cell) {
         listCells.remove(cell);
     }
 
-    public void removeCells(List<String> cell) {
+    public void removeCellsOfListCells(List<String> cell) {
         listCells.removeAll(cell);
     }
 
-    public boolean findPowerCoord(String coord) {
-        if (powers.isEmpty()) {
+    public boolean mineExploded(String coord) {
+        if (listOfMines.isEmpty()) {
             return false;
         }
-        int i = 0;
-        for (Power power : powers) {
-            if (power.getPosition().equals(coord)) {
-                powers.remove(i);
+        for (int i = 0; i < listOfMines.size(); i++) {
+            if (((Mine) listOfMines.get(i)).verifyImpact(coord)) {
+                listOfMines.remove(i);
                 return true;
             }
-            i++;
         }
         return false;
     }
 
-    public List<Power> getPowers() {
-        return powers;
+    /**
+     * Metodo para obtener la lista de Minas usadas
+     *
+     * @return Lista de tipo {@code  Power} con las Minas usadas
+     */
+    public List<Power> getListOfMines() {
+        return listOfMines;
     }
 
-    public void addPower(Power power) {
-        powers.add(power);
+    public void addMine(Power power) {
+        listOfMines.add(power);
     }
 
-    public void clearPowers() {
-        powers.clear();
+    public void clearListOfMine() {
+        listOfMines.clear();
     }
 
     /**
@@ -195,7 +199,7 @@ public class Player implements Cell {
         Boat temp = (Boat) boats.get(id);
         int actualLife = temp.getLife();
         int afterLife = actualLife - 1;
-        if (afterLife >= 0) {
+        if (afterLife > 0) {
             temp.setLife(afterLife);
             boats.set(id, temp);
             return temp;
@@ -206,6 +210,7 @@ public class Player implements Cell {
         boats.remove(id);
         //Remuevo Boat (mismo index porque ya no existe el Id)
         boats.remove(id);
-        return null;
+        cells.addAll(temp.getCoords());
+        return temp;
     }
 }

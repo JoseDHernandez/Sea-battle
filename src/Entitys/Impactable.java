@@ -13,24 +13,14 @@ import java.util.List;
 public interface Impactable {
 
     /**
-     * Método para indicar que el Boat ha recibido un impacto en la coordenada
-     * especificada.
-     *
-     * @param coord La coordenada donde se produce el impacto
-     * @param boat Objeto boat a compara coordenadas
-     */
-    void recibeImpact(String coord, Boat boat);
-
-    /**
      * Método para verificar si la celda/coordenada ha sido impactada en la
      * coordenada especificada.
      *
      * @param atackCoord la coordenada seleccionada
-     * @param targetCoord coordenada objetiva
      * @return {@code true} si el objeto ha sido impactado en la coordenada
      * especificada, {@code false} en caso contrario
      */
-    boolean verifyImpact(String atackCoord, String targetCoord);
+    boolean verifyImpact(String atackCoord);
 
     /**
      * Método para verificar si en una lista de coordenadas alguna ha impactado

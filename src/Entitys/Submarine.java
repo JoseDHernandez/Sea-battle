@@ -60,17 +60,6 @@ public class Submarine extends Power implements Impactable, Rotable {
     }
 
     @Override
-    public void recibeImpact(String coord, Boat boat) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public boolean verifyImpact(String atackCoord, String targetCoord) {
-
-        return atackCoord.equals(targetCoord);
-    }
-
-    @Override
     public boolean verifyImpact(List<String> atackCoords, List<String> targetCoords) {
         for (String coord : targetCoords) {
             if (atackCoords.contains(coord)) {
@@ -167,6 +156,11 @@ public class Submarine extends Power implements Impactable, Rotable {
     @Override
     public void setOrientation(boolean orientation) {
         this.orientation = orientation;
+    }
+
+    @Override
+    public boolean verifyImpact(String atackCoord) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
 }

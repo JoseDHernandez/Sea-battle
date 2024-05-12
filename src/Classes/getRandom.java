@@ -53,13 +53,14 @@ public class getRandom {
 
     public String getRandomCoord(Player templayer) {
         if (templayer.getListCells().isEmpty()) {
+            System.out.println("\n\nCoordenadas vacias\n\n");
             return null;
         }
         try {
             //listCells.removeAll(enemy.getCells());
             int index = templayer.getListCells().size() - 1;
             String coord = templayer.getListCells().get(getRandomNumber(index));
-            templayer.getListCells().remove(index);
+            templayer.removeCellOfListCells(coord);
             return coord;
         } catch (NullPointerException e) {
             return null;

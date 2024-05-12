@@ -13,13 +13,25 @@ import java.util.List;
  */
 public class Locator extends Power {
 
-    public List<String> findMatchCoords(String atackCoords, List<String> targetCoords) {
-        List<String> temp = new ArrayList<>();
-        for (String coord : targetCoords) {
-            if (atackCoords.equals(coord)) {
-                temp.add(coord);
+    public List<Object> findMatchCoords(List<Object> boats, List<String> Coords) {
+        List<Object> temp = new ArrayList<>();
+        if (!boats.isEmpty()) {
+            for (int i = 1; i < boats.size(); i += 2) {
+                if (temp.size() == 18) {
+                    break;
+                }
+                for (String coord : Coords) {
+                    if (((Boat) boats.get(i)).getCoords().contains(coord)) {
+                        int id = i - 1;
+                        if (id >= 0 || id == -3) {
+                            temp.add(id);//Id
+                            temp.add(coord);//Coordenda
+                        }
+                    }
+                }
             }
         }
+        System.out.println(temp.toString());
         return temp;
     }
 }

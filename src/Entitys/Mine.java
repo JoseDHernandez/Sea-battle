@@ -21,22 +21,8 @@ public class Mine extends Power implements Impactable {
     }
 
     @Override
-    public void recibeImpact(String coord, Boat boat) {
-
-        super.addCell(coord);
-        for (String coordBoat : boat.getCoords()) {
-            if (coordBoat.equals(coord)) {
-                boat.setLife(boat.getLife() - 1);
-            }
-        }
-    }
-
-    @Override
-    public boolean verifyImpact(String atackCoord, String targetCoord) {
-        if (atackCoord.equals(targetCoord)) {
-            return true;
-        }
-        return false;
+    public boolean verifyImpact(String Coord) {
+        return super.getPosition().equals(Coord);
     }
 
     @Override

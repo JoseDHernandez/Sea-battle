@@ -273,7 +273,7 @@ public class Main extends javax.swing.JFrame {
 
     private void startBoard() {
 
-        Tablero Table = new Tablero(boardSize, difficulty, getListOfEntitys());
+        Tablero Table = new Tablero(boardSize, difficulty, getListOfEntitys(), (Boat_One + Boat_Two + Boat_Three));
         Dimension dimensionTable = Table.getDimension();
         System.out.println(dimensionTable);
         Panel.remove(PanelMenu);
