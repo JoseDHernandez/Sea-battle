@@ -19,6 +19,14 @@ public class Boat implements Rotable {
         rotation = 1;
     }
 
+    public Boat(Boat other) {
+        this.life = other.life;
+        this.size = other.size;
+        this.coords = new ArrayList<>(other.coords); // Copia las coordenadas
+        this.orientation = other.orientation;
+        this.rotation = other.rotation;
+    }
+
     public Boat(int size) {
         this.life = size;
         this.size = size;

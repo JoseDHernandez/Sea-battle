@@ -16,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -69,9 +70,6 @@ public class Tablero extends javax.swing.JPanel {
     // Lista de celdas "fantasma" pintadas
     private List<String> ghostCells = new ArrayList<>();
 
-    // Programación de tareas periódicas
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
     /**
      * Lista de entidades a usar (barcos y minas) Nota: Las minas deben ir de
      * ultimas: 1 - 3 = Barcos, 0 = Mina
@@ -81,12 +79,13 @@ public class Tablero extends javax.swing.JPanel {
     private int NumberOfTotalBoats; //Numero total de botes
     private List<String> OriginalListCells = new ArrayList<>(); //Lista de coordenadas para generar coordenadas
     //Cantidad de powerUps
-    private int numberOfLocators = 2; //Cantidad de localizadores
-    private int numberOfSubmarine = 1; //Cantidad de submarinos
+    private int numberOfLocators = 3; //Cantidad de localizadores
+    private int numberOfSubmarine = 2; //Cantidad de submarinos
     private boolean isEnable = true; //Bloqueo del tablero
     //Segundos de los bucles de animacion
     private final int SECONDS_LOCATOR = 2; //Segundos del bucle para localizador
     private final int SECONDS_SUBMARINE = 1; //Segudos del bucle para submarino
+    private LocalTime ColdDownSubmarine = LocalTime.now();
 
     /**
      * Constructor de Tablero
@@ -163,9 +162,6 @@ public class Tablero extends javax.swing.JPanel {
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
         BDP = new javax.swing.JLabel();
         BDB = new javax.swing.JLabel();
         CP = new javax.swing.JLabel();
@@ -336,15 +332,9 @@ public class Tablero extends javax.swing.JPanel {
 
         jLabel6.setText("Barcos dañados:");
 
-        jLabel7.setText("Tu:");
+        jLabel7.setText("Bot:");
 
-        jLabel8.setText("Bot:");
-
-        jLabel9.setText("Celdas usadas:");
-
-        jLabel10.setText("Bot:");
-
-        jLabel11.setText("Tu:");
+        jLabel8.setText("Tu:");
 
         BDP.setText(" ");
 
@@ -394,21 +384,16 @@ public class Tablero extends javax.swing.JPanel {
             .addGroup(PanelGameLayout.createSequentialGroup()
                 .addGroup(PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelGameLayout.createSequentialGroup()
-                        .addGap(62, 62, 62)
+                        .addGap(96, 96, 96)
                         .addGroup(PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(PanelGameLayout.createSequentialGroup()
-                                .addComponent(jLabel10)
-                                .addGap(18, 18, 18)
+                                .addGap(5, 5, 5)
                                 .addComponent(CB, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(PanelGameLayout.createSequentialGroup()
-                                .addComponent(jLabel11)
-                                .addGap(18, 18, 18)
-                                .addComponent(CP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(CP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(PanelGameLayout.createSequentialGroup()
                         .addGap(42, 42, 42)
                         .addGroup(PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(Message)
-                            .addComponent(jLabel9)
                             .addComponent(jLabel6)
                             .addGroup(PanelGameLayout.createSequentialGroup()
                                 .addGap(18, 18, 18)
@@ -438,17 +423,11 @@ public class Tablero extends javax.swing.JPanel {
                 .addGroup(PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
                     .addComponent(BDB))
+                .addGap(34, 34, 34)
+                .addComponent(CP)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel9)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel11)
-                    .addComponent(CP))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel10)
-                    .addComponent(CB))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(CB)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
                 .addComponent(Message)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -512,7 +491,7 @@ public class Tablero extends javax.swing.JPanel {
      * @param coords Lista de celdas en coordenas del submarino
      */
     private void submarineTorpedoes(Submarine submarine, String codeCoords, List<String> coords) {
-
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         ScheduledFuture<?> task = scheduler.scheduleAtFixedRate(() -> {
 
             //Array de las cordenas de los torpedos
@@ -555,7 +534,7 @@ public class Tablero extends javax.swing.JPanel {
             if (shoot0 || shoot1) {
 
                 //Posion anterior de torpedos
-                if (!shootsCoords[0].equals(codeCoords)) {
+                if (!shootsCoords[0].equals(codeCoords) || !shootsCoords[1].equals(codeCoords)) {
                     submarine.setTorpedoes(shootsCoords);
                     System.out.println("shoot: \n" + shootsCoords[0] + " | " + shootsCoords[1]);
                     System.out.println("after: \n" + afterShoot[0] + " | " + afterShoot[1] + "\n\n");
@@ -659,7 +638,6 @@ public class Tablero extends javax.swing.JPanel {
                 player.addBoat(actualBoat);
             }
             player.addCell(coords);
-            System.out.println(coords.toString());
             paintCells(true, coords);
             if (!inBuild) {
                 if (actualPowerUp == null && player.getTypeAttack()) {
@@ -724,11 +702,19 @@ public class Tablero extends javax.swing.JPanel {
                             //Dibujar celdas
                             actualPowerUp = new Power();
                             player.setTypeAttack(true);
-                            for (int i = 1; i < ids.size(); i += 2) {
-                                drawImpact((int) ids.get(i - 1), String.valueOf(ids.get(i)), player);
-                                ghostCells.add(String.valueOf(ids.get(i)));
+                            inBuild = true;
+                            for (int i = 0; i < ids.size(); i += 3) {
+                                String coord = String.valueOf(ids.get(i));
+                                int index = (int) ids.get(i + 1);
+                                actualBoat = new Boat((Boat) ids.get(i + 2));
+                                getCell(coord).setIcon(img.getIcon(true, index, actualBoat, actualPowerUp, inBuild));
+                                ghostCells.add(coord);
                             }
-                            drawImpact(-2, codeCoords, player);
+                            ghostCells.add(codeCoords);
+                            actualBoat = null;
+                            inBuild = false;
+                        } else {
+                            turnChange();
                         }
                     }
                 }
@@ -953,15 +939,6 @@ public class Tablero extends javax.swing.JPanel {
                 button.setIcon(VOID_CELL);
             }
         }
-    }
-
-    /**
-     * Este método se encarga de pintar una celda en el tablero.
-     *
-     * @param cell La coordenada de la celda a pintar.
-     */
-    private void paintCells(boolean type, String cell) {
-        paintCells(type, Arrays.asList(cell));
     }
 
     /**
@@ -1304,16 +1281,17 @@ public class Tablero extends javax.swing.JPanel {
             }
         } else if (idBoat == -3) {
             //mina
-            boolean actualAttack = player.getTypeAttack();
-            player.setTypeAttack(false);
-            getCell(coord).setIcon(img.getIcon(true, 0, null, new Mine(), true));
-            player.setTypeAttack(actualAttack);
             //bot
-            getCellBoard(coord).setBackground(Color.YELLOW);
+            if (isBot) {
+                getCellBoard(coord).setBackground(Color.YELLOW);
+            } else {
+                boolean actualAttack = player.getTypeAttack();
+                player.setTypeAttack(false);
+                getCell(coord).setIcon(img.getIcon(true, 0, null, new Mine(), true));
+                player.setTypeAttack(actualAttack);
+
+            }
             drawExplosion(coord, isBot);
-        } else {
-            getCellBoard(coord).setBackground(Color.PINK);
-            System.out.println("\n\nERROR: " + idBoat);
         }
         actualBoat = null;
         //barcos atacados
@@ -1376,7 +1354,7 @@ public class Tablero extends javax.swing.JPanel {
         } else if (!targetPlayer.getListOfMines().isEmpty() && targetPlayer.mineExploded(coord)) {
             //Mina
             attackPlayer.addCell(coord);
-            targetPlayer.addCell(coord);
+            impactVerification(coord, targetPlayer, attackPlayer);
             return -3;
         }
         for (int i = 1; i < boats.size(); i += 2) {
@@ -1716,8 +1694,6 @@ public class Tablero extends javax.swing.JPanel {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1725,7 +1701,6 @@ public class Tablero extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;

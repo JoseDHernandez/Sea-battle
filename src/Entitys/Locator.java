@@ -21,17 +21,20 @@ public class Locator extends Power {
                     break;
                 }
                 for (String coord : Coords) {
-                    if (((Boat) boats.get(i)).getCoords().contains(coord)) {
-                        int id = i - 1;
-                        if (id >= 0 || id == -3) {
-                            temp.add(id);//Id
-                            temp.add(coord);//Coordenda
+                    Boat boat = new Boat((Boat) boats.get(i));
+                    if (boat.getCoords().contains(coord)) {
+                        temp.add(coord);//Coordenda
+                        for (int k = 0; k < boat.getCoords().size(); k++) {
+                            if (boat.getCoords().get(k).equals(coord)) {
+                                temp.add(k);//Index
+                                break;
+                            }
                         }
+                        temp.add(boat);//Barco
                     }
                 }
             }
         }
-        System.out.println(temp.toString());
         return temp;
     }
 }

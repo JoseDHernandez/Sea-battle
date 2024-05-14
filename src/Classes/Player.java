@@ -191,6 +191,7 @@ public class Player implements Cell {
     }
 
     public void setListOfBoats(List<Object> list) {
+        boats.clear();
         boats.addAll(list);
     }
 
