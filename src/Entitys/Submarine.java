@@ -98,11 +98,6 @@ public class Submarine extends Power implements Impactable, Rotable {
     }
 
     @Override
-    public String getTextPosition() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
     public void setRotation(int rotation) {
         this.rotation = rotation;
     }

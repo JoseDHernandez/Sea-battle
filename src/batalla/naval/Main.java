@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 
-public class Main extends javax.swing.JFrame {
+public final class Main extends javax.swing.JFrame {
 
     /**
      * Creates new form Main
      */
     Dimension dimensionTable = null;
-    protected JPanel TablePlayer = new JPanel();
+    private JPanel TablePlayer = new JPanel();
     //Variables de opciones
     private int Boat_One = 4;
     private int Boat_Two = 3;
@@ -106,7 +106,7 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
-        Panel.setBackground(new java.awt.Color(204, 204, 204));
+        Panel.setBackground(new java.awt.Color(255, 255, 255));
 
         PanelMenu.setBackground(new java.awt.Color(255, 204, 204));
         PanelMenu.setMinimumSize(new java.awt.Dimension(600, 700));
@@ -207,9 +207,9 @@ public class Main extends javax.swing.JFrame {
         PanelLayout.setHorizontalGroup(
             PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelLayout.createSequentialGroup()
-                .addContainerGap(277, Short.MAX_VALUE)
+                .addGap(277, 277, 277)
                 .addComponent(PanelMenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(165, 165, 165))
+                .addContainerGap(165, Short.MAX_VALUE))
         );
         PanelLayout.setVerticalGroup(
             PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -234,10 +234,16 @@ public class Main extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-  public Main() {
+     public Main() {
+        setTitle("SEA BATLLE");
         initComponents();
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
         //Menu
+        showMenu();
+        //startBoard();
+    }
+
+    public void showMenu() {
         Panel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -249,7 +255,6 @@ public class Main extends javax.swing.JFrame {
         // Agregar el panel hijo al panel principal
         PanelMenu.setSize(600, 840);
         Panel.add(PanelMenu, gbc);
-        startBoard();
     }
 
     private void reSize() {
@@ -271,20 +276,31 @@ public class Main extends javax.swing.JFrame {
         return entitys;
     }
 
+    private void showOptions() {
+        Menu.setVisible(false);
+        Options op = new Options(this);
+        PanelMenu.add(op);
+        op.setSize(600, 700);
+        PanelMenu.revalidate();
+        PanelMenu.repaint();
+    }
+
     private void startBoard() {
 
-        Tablero Table = new Tablero(boardSize, difficulty, getListOfEntitys(), (Boat_One + Boat_Two + Boat_Three));
-        Dimension dimensionTable = Table.getDimension();
-        System.out.println(dimensionTable);
-        Panel.remove(PanelMenu);
-        TablePlayer.setSize(dimensionTable);
+        PanelMenu.setVisible(false);
+        Tablero Table = new Tablero(boardSize, difficulty, getListOfEntitys(), (Boat_One + Boat_Two + Boat_Three), this);
+        Dimension dimensionT = Table.getDimension();
+        //System.out.println(dimensionTable);
         TablePlayer.add(Table);
-        Table.setSize(dimensionTable);
+        TablePlayer.setSize(dimensionT);
         Panel.add(TablePlayer);
+        Table.setSize(dimensionT);
         Panel.repaint();
         TablePlayer.revalidate();
         TablePlayer.repaint();
-        this.dimensionTable = dimensionTable;
+        Panel.revalidate();
+        Panel.repaint();
+        this.dimensionTable = dimensionT;
     }
     private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
         reSize();
@@ -298,13 +314,7 @@ public class Main extends javax.swing.JFrame {
 
     private void ButtonOptionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonOptionMouseClicked
 
-        Menu.setVisible(false);
-        Options op = new Options(this);
-
-        PanelMenu.add(op);
-        op.setSize(600, 700);
-        PanelMenu.revalidate();
-        PanelMenu.repaint();
+        showOptions();
     }//GEN-LAST:event_ButtonOptionMouseClicked
 
     /**

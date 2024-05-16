@@ -60,38 +60,4 @@ public class Power implements Cell {
         return position;
     }
 
-    /**
-     * Método para obtener la posición de la entidad en alfabeto militar
-     *
-     * @return Posición en alfabeto militar
-     */
-    public String getTextConvertPosition() {
-        String letter = position.substring(0, 1);
-        String text;
-        text = switch (letter.toUpperCase()) {
-            case "A" ->
-                "Alfa";
-            case "B" ->
-                "Bravo";
-            case "C" ->
-                "Charlie";
-            case "D" ->
-                "Delta";
-            case "E" ->
-                "Echo";
-            case "F" ->
-                "Foxtrot";
-            case "G" ->
-                "Golf";
-            case "H" ->
-                "Hotel";
-            case "I" ->
-                "India";
-            case "J" ->
-                "Juliett";
-            default ->
-                letter;
-        };
-        return text + " " + position.substring(1);
-    }
 }

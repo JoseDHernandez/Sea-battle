@@ -343,6 +343,7 @@ public class Options extends javax.swing.JPanel {
         jLabel13.setText("Dificultad");
 
         Difficulty.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Normal", "Medio", "Dificil" }));
+        Difficulty.setEnabled(false);
 
         jLabel14.setText("Nombre de jugador");
 

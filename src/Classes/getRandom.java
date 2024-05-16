@@ -4,8 +4,6 @@ import java.util.Random;
 
 public class getRandom {
 
-    private final int FIRST_LETTER = 65;//Decimal de 'A'
-    private int MAX_LETTER;
     private int Size;
 
     /**
@@ -14,7 +12,6 @@ public class getRandom {
      * {@code getRandom(int Size,int Last_letter)}
      */
     public getRandom() {
-        MAX_LETTER = 0;
         Size = 0;
     }
 
@@ -26,7 +23,6 @@ public class getRandom {
      */
     public getRandom(int Size) {
         this.Size = Size;
-        MAX_LETTER = FIRST_LETTER + Size;
     }
 
     /**

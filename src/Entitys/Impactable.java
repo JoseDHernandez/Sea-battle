@@ -33,10 +33,4 @@ public interface Impactable {
      */
     boolean verifyImpact(List<String> atackCoords, List<String> targetCoords);
 
-    /**
-     * Método para obtener la posición del PowerUp en alfabeto militar
-     *
-     * @return Posición en alfabeto militar
-     */
-    String getTextPosition();
 }

@@ -16,7 +16,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -85,7 +84,7 @@ public class Tablero extends javax.swing.JPanel {
     //Segundos de los bucles de animacion
     private final int SECONDS_LOCATOR = 2; //Segundos del bucle para localizador
     private final int SECONDS_SUBMARINE = 1; //Segudos del bucle para submarino
-    private LocalTime ColdDownSubmarine = LocalTime.now();
+    private final Main menu;
 
     /**
      * Constructor de Tablero
@@ -95,8 +94,10 @@ public class Tablero extends javax.swing.JPanel {
      * 2=Dificil)
      * @param EntitysList Lista de las entidades
      * @param numEntitys Cantidad total de entidades
+     * @param menu Menu
      */
-    public Tablero(int Size, int Difficulty, List<Integer> EntitysList, int numEntitys) {
+    public Tablero(int Size, int Difficulty, List<Integer> EntitysList, int numEntitys, Main menu) {
+        this.menu = menu;
         // Inicialización de variables
         this.DIFFICULTY = Difficulty;
         this.Size = Size; // Tamaño del tablero
@@ -164,13 +165,11 @@ public class Tablero extends javax.swing.JPanel {
         jLabel8 = new javax.swing.JLabel();
         BDP = new javax.swing.JLabel();
         BDB = new javax.swing.JLabel();
-        CP = new javax.swing.JLabel();
-        CB = new javax.swing.JLabel();
         Message = new javax.swing.JLabel();
 
         jButton1.setText("jButton1");
 
-        setBackground(new java.awt.Color(255, 255, 153));
+        setBackground(new java.awt.Color(204, 204, 204));
         setMinimumSize(getDimension());
 
         Panel.setBackground(new java.awt.Color(255, 255, 255));
@@ -210,6 +209,11 @@ public class Tablero extends javax.swing.JPanel {
         });
 
         jButton3.setText("Limpiar tablero");
+        jButton3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton3MouseClicked(evt);
+            }
+        });
         jButton3.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jButton3KeyPressed(evt);
@@ -340,10 +344,6 @@ public class Tablero extends javax.swing.JPanel {
 
         BDB.setText(" ");
 
-        CP.setText(" ");
-
-        CB.setText(" ");
-
         Message.setText("Estado");
 
         javax.swing.GroupLayout PanelGameLayout = new javax.swing.GroupLayout(PanelGame);
@@ -382,30 +382,21 @@ public class Tablero extends javax.swing.JPanel {
                         .addComponent(jSeparator5)
                         .addContainerGap())))
             .addGroup(PanelGameLayout.createSequentialGroup()
+                .addGap(42, 42, 42)
                 .addGroup(PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(Message)
+                    .addComponent(jLabel6)
                     .addGroup(PanelGameLayout.createSequentialGroup()
-                        .addGap(96, 96, 96)
+                        .addGap(18, 18, 18)
                         .addGroup(PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(PanelGameLayout.createSequentialGroup()
-                                .addGap(5, 5, 5)
-                                .addComponent(CB, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(CP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(PanelGameLayout.createSequentialGroup()
-                        .addGap(42, 42, 42)
-                        .addGroup(PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(Message)
-                            .addComponent(jLabel6)
-                            .addGroup(PanelGameLayout.createSequentialGroup()
+                                .addComponent(jLabel8)
                                 .addGap(18, 18, 18)
-                                .addGroup(PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(PanelGameLayout.createSequentialGroup()
-                                        .addComponent(jLabel8)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(BDB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addGroup(PanelGameLayout.createSequentialGroup()
-                                        .addComponent(jLabel7)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(BDP, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
+                                .addComponent(BDB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(PanelGameLayout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addGap(18, 18, 18)
+                                .addComponent(BDP, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         PanelGameLayout.setVerticalGroup(
@@ -423,11 +414,7 @@ public class Tablero extends javax.swing.JPanel {
                 .addGroup(PanelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
                     .addComponent(BDB))
-                .addGap(34, 34, 34)
-                .addComponent(CP)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(CB)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(Message)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1240,8 +1227,6 @@ public class Tablero extends javax.swing.JPanel {
         BDP.setText(numPlayer + " / " + NumberOfTotalBoats);
         BDB.setText(numBot + " / " + NumberOfTotalBoats);
         //Contadores
-        CP.setText(player.getCells().size() + "");
-        CB.setText(enemy.getCells().size() + "");
     }
 
     /**
@@ -1463,7 +1448,6 @@ public class Tablero extends javax.swing.JPanel {
 
     private void selectPowerUp(String type) {
         player.setTypeAttack(false);
-        System.out.println(numberOfLocators);
         if (type.equalsIgnoreCase("locator") && numberOfLocators > 0) {
             actualPowerUp = new Locator();
             numberOfLocators--;
@@ -1481,7 +1465,16 @@ public class Tablero extends javax.swing.JPanel {
     }
 
     private void finalGame() {
-        JOptionPane.showInternalMessageDialog(null, "Juego terminado", "JUEGO TERMINADO", JOptionPane.INFORMATION_MESSAGE);
+        enableBoard(false);
+        int num = NumberOfTotalBoats - (enemy.getBoatList().size() / 2);
+        String ganador = "";
+        if (num == NumberOfTotalBoats) {
+            ganador = " Jugador";
+        } else {
+            ganador = "Bot";
+        }
+        JOptionPane.showInternalMessageDialog(null, "Juego terminado: \n\n Ganador: " + ganador, "JUEGO TERMINADO", JOptionPane.INFORMATION_MESSAGE);
+        menu.showMenu();
     }
 
     /**
@@ -1650,7 +1643,7 @@ public class Tablero extends javax.swing.JPanel {
 
     private void jButton3KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jButton3KeyPressed
         // TODO add your handling code here:
-        clearEnetitysOfPlayer(player);
+
     }//GEN-LAST:event_jButton3KeyPressed
 
     private void PlayButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PlayButtonMouseClicked
@@ -1673,12 +1666,14 @@ public class Tablero extends javax.swing.JPanel {
         selectPowerUp("submarine");
     }//GEN-LAST:event_SubmarineButtonMouseClicked
 
+    private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
+        clearEnetitysOfPlayer(player);
+    }//GEN-LAST:event_jButton3MouseClicked
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel BDB;
     private javax.swing.JLabel BDP;
     private javax.swing.JPanel Board;
-    private javax.swing.JLabel CB;
-    private javax.swing.JLabel CP;
     private javax.swing.JLabel ImageBoat;
     private javax.swing.JLabel L_Healtd;
     private javax.swing.JLabel L_Orientation;

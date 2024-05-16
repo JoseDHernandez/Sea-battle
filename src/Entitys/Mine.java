@@ -31,9 +31,4 @@ public class Mine extends Power implements Impactable {
 
     }
 
-    @Override
-    public String getTextPosition() {
-        return super.getTextConvertPosition();
-    }
-
 }
