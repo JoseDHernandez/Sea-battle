@@ -20,14 +20,21 @@ Sea Battle is a naval battle game developed in Java using Java Swing. This proje
 
 ![Options](https://github.com/JoseDHernandez/Sea-battle/assets/128190435/7c6f8029-b960-40fa-9230-f5e60aba465a)
 ### Game Board And Power Ups
+
 **Game Board**
+
 ![Game Board](https://github.com/JoseDHernandez/Sea-battle/assets/128190435/4bfd98cd-282f-4554-82ab-4e9de6474b8d)
+
 **Submarine**
+
 The torpedoes have animation, moving from cell to cell.
 ![Submarine and torpedoes(Power Up)](https://github.com/JoseDHernandez/Sea-battle/assets/128190435/364a2f31-3056-49f3-85ce-f85af35b62eb)
+
 **Radar**
+
 The green cells serve as the placeholder or range for the radar.
 ![Radar (Power Up)](https://github.com/JoseDHernandez/Sea-battle/assets/128190435/686fbc27-9118-4f9d-9d91-e50cc81cc291)
+
 When clicking on a cell with the radar, the center cell stays green while the other cells reveal the hidden boats.
 ![Radar view ](https://github.com/JoseDHernandez/Sea-battle/assets/128190435/4bb6c352-1454-4e95-95d2-dae3f06529e4)
 
